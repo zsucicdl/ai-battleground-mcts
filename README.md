@@ -25,7 +25,7 @@ https://github.com/domjanbaric/AI_Battleground2016
 
 TEORIJA:
 
-1.mcts
+1.mcts SVI!!!!!!!
 
 http://www.incompleteideas.net/609%20dropbox/other%20readings%20and%20resources/MCTS-survey.pdf
 
