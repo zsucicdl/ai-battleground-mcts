@@ -17,9 +17,11 @@ https://github.com/aibg/ai-server-gconway
 https://gitlab.com/AIBG/pax-package/-/tree/master
 
 
-NEKA GRID IGRA, MOGUCE ISTO GAME OF LIFE:
+OSTALO AIBG:
 
 https://github.com/lagercat/AIBGChallenge
+
+https://github.com/domjanbaric/AI_Battleground2016
 
 TEORIJA:
 
