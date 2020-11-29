@@ -1,23 +1,23 @@
 # gameaistuff
 
 
-MEDO:
+MEDO: ZVONE
 
 https://github.com/nbadnjarevic/aibg2018
 
 
-ASTEROIDI:
+ASTEROIDI: ANDREJ
 
 https://github.com/fpopic/aibg
 
 
-GAME OF LIFE:
+GAME OF LIFE: DINO
 
 https://github.com/aibg/ai-server-gconway
 https://gitlab.com/AIBG/pax-package/-/tree/master
 
 
-OSTALO AIBG:
+OSTALO AIBG: MARKO
 
 https://github.com/lagercat/AIBGChallenge
 
