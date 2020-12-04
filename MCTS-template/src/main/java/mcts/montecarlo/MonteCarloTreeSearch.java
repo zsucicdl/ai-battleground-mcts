@@ -1,6 +1,6 @@
 package mcts.montecarlo;
 
-import mcts.tictactoe.Board;
+import mcts.game.Board;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 

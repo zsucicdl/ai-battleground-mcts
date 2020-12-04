@@ -1,19 +1,18 @@
 package mcts.montecarlo;
 
-import mcts.tictactoe.Board;
-import mcts.tictactoe.Move;
+import mcts.game.Board;
+import mcts.game.Move;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class State {
     private Board board;
-    private int playerNo;
+    private int playerId;
     private int visitCount;
     private double winScore;
 
     public State() {
-        board = new Board();
     }
 
     public State(Board board) {

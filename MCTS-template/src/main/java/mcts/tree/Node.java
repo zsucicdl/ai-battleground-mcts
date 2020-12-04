@@ -11,12 +11,12 @@ public class Node {
 
     public Node() {
         this.state = new State();
-        childArray = new ArrayList<>();
+        childArray = new ArrayList<Node>();
     }
 
     public Node(State state) {
         this.state = state;
-        childArray = new ArrayList<>();
+        childArray = new ArrayList<Node>();
     }
 
     public Node(State state, Node parent, List<Node> childArray) {
@@ -70,9 +70,7 @@ public class Node {
     }
 
     public Node getChildWithMaxScore() {
-        return Collections.max(this.childArray, Comparator.comparing(c -> {
-            return c.getState().getVisitCount();
-        }));
+        return this.childArray.stream().max(Comparator.comparing(c -> c.getState().getVisitCount())).get();
     }
 
 }
