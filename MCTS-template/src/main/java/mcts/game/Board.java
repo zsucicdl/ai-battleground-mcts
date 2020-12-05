@@ -37,7 +37,7 @@ public class Board {
         return new Board(turns, newPlayers, newIndexCities, indexIntersections, newIndexXYRoads);
     }
 
-    public static Board initBoard(List<List<Integer>> intersectionToIntersection, List<List<Field>> intersectionToField){
+    public static Board initBoard(List<List<Integer>> intersectionToIntersection, List<List<Field>> intersectionToField, boolean amIFirst){
         HashMap<Integer, Intersection> indexIntersections = new HashMap<>();
         HashMap<ValuesXY, Integer> intersectionRoads = new HashMap<>();
 
@@ -58,7 +58,9 @@ public class Board {
                 currentIntersection.addAdjacentField(field);
             }
         }
-        Builder[] players = new Builder[] {new Builder(1), new Builder(2)};
+        Builder player1 = new Builder(amIFirst ? 1 : 2);
+        Builder player2 = new Builder(amIFirst ? 2 : 1);
+        Builder[] players = new Builder[] {player1, player2};
         HashMap<Integer, City>[] newIndexCities = new HashMap[] {new HashMap<>(), new HashMap<>()};
         return new Board(0, players, newIndexCities, indexIntersections, intersectionRoads);
     }

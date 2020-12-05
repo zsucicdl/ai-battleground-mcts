@@ -12,7 +12,7 @@ public class Main {
     private static String playerId = "1";
     private static String gameId = "1";
     
-    public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap) throws JSONException {
+    public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap, boolean amIFirst) throws JSONException {
 
         Map<ValuesXY, Field> fields = new HashMap<>();
         for (int i = 0; i < mapTiles.length(); i++) {
@@ -59,7 +59,7 @@ public class Main {
         }
 
         // PREDAJ PODATKE
-        Board board = Board.initBoard(intersectionToIntersection, intersectionToField);
+        Board board = Board.initBoard(intersectionToIntersection, intersectionToField, amIFirst);
         return board;
     }
 
@@ -76,17 +76,6 @@ public class Main {
 
             while (data.getBoolean("success")) {
                 JSONObject result = data.getJSONObject("result");
-                // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
-                JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
-
-                JSONObject map = result.getJSONObject("map");
-                int mapWidth = map.getInt("width");
-                int mapHeight = map.getInt("height");
-                // Lista sa podacima o poljima (resourceType, resourceWeight, x, y) u arrayu 9x9
-                JSONArray mapTiles = map.getJSONArray("tiles");
-
-                // Lista sa susjedima intersectiona duljine 96, oblika [[1, 10], [0, 2], [1, 3, 12], ...]
-                JSONArray indexMap = result.getJSONArray("indexMap");
 
                 // Action
                 String action = result.getString("action");
@@ -94,50 +83,94 @@ public class Main {
 
                 // Player ID
                 int playerId = data.getInt("playerID");
-                
                 if (iteration == 0) {
-                    if (action.equals("null")) {
-                        first_player = playerId;
-                    } else {
-                        if (playerId == 1) {
-                            first_player = 2;
-                        } else {
-                            first_player = 1;
-                        }
-                    }
-                    board = initGameState(intersectionCoordinates, mapTiles, indexMap);
-                }
-                boolean isFirst = (first_player == playerId);
 
-                if (!action.equals("null")) {
+                }
+
+                if(iteration == 0){
+                    // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
+                    JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
+
+                    JSONObject map = result.getJSONObject("map");
+                    int mapWidth = map.getInt("width");
+                    int mapHeight = map.getInt("height");
+                    // Lista sa podacima o poljima (resourceType, resourceWeight, x, y) u arrayu 9x9
+                    JSONArray mapTiles = map.getJSONArray("tiles");
+
+                    // Lista sa susjedima intersectiona duljine 96, oblika [[1, 10], [0, 2], [1, 3, 12], ...]
+                    JSONArray indexMap = result.getJSONArray("indexMap");
+
+                    boolean amIFirst;
+                    if (action.equals("null")) {
+                        amIFirst = true;
+                    } else {
+                        amIFirst = false;
+                    }
+                    board = initGameState(intersectionCoordinates, mapTiles, indexMap, amIFirst);
+                }
+
+                String myMove = "";
+                boolean iAmFirst = (first_player == playerId);
+                if(iAmFirst && iteration == 0){
+                    Move myRandomMove = board.getRandomMove();
+                    board.playMove(myRandomMove);
+                    myMove += myRandomMove.toString();
+                    iteration++;
+                } else if(iAmFirst && iteration == 1){
                     enemyAction = new JSONObject(action).getString("result");
                     String[] words = enemyAction.split(" ");
-                    if (words.length == 6) {
-                        String move1 = words[0] + " " +words[1] + " " + words[2];
-                        String move2 = words[3] + " " +words[4] + " " + words[5];
-                        board.playMove(Move.fromString(move1));
-                        board.playMove(Move.fromString(move2));
-                        iteration++;
-                    } else {
-                        Move move = Move.fromString(enemyAction);
-                        board.playMove(move);
-                    }
+                    String move1 = words[0] + " " + words[1] + " " + words[2];
+                    String move2 = words[3] + " " + words[4] + " " + words[5];
+                    board.playMove(Move.fromString(move1));
+                    board.playMove(Move.fromString(move2));
+                    iteration += 2;
+
+                    Move move = board.getRandomMove();
+                    board.playMove(move);
+                    myMove += move.toString();
+                    move = board.getRandomMove();
+                    board.playMove(move);
+                    myMove += " " + move.toString();
+                    myMove = myMove;
+                    iteration += 2;
+                } else if(!iAmFirst && iteration == 0){
+                    enemyAction = new JSONObject(action).getString("result");
+                    board.playMove(Move.fromString(enemyAction));
+                    iteration++;
+
+                    Move move = board.getRandomMove();
+                    board.playMove(move);
+                    myMove += move.toString();
+                    move = board.getRandomMove();
+                    board.playMove(move);
+                    myMove += " " + move.toString();
+                    myMove = myMove;
+                    iteration += 2;
+                }else if(!iAmFirst && iteration == 3){
+                    enemyAction = new JSONObject(action).getString("result");
+                    String[] words = enemyAction.split(" ");
+                    String move1 = words[0] + " " + words[1] + " " + words[2];
+                    String move2 = words[3] + " " + words[4] + " " + words[5];
+                    board.playMove(Move.fromString(move1));
+                    board.playMove(Move.fromString(move2));
+                    iteration += 2;
+
+                    Move move = board.getRandomMove();
+                    board.playMove(move);
+                    myMove += move.toString();
+                } else {
+                    enemyAction = new JSONObject(action).getString("result");
+                    board.playMove(Move.fromString(enemyAction));
+                    iteration++;
+
+                    Move move = board.getRandomMove();
+                    board.playMove(move);
+                    myMove += move.toString();
                     iteration++;
                 }
-                String myMove = "";
-                // DOHVATI MOJ POTEZ
-                Move myRandomMove = board.getRandomMove();
-                board.playMove(myRandomMove);
-                myMove += myRandomMove.toString().replace(" ", "%20");
-                if (iteration == 3 && isFirst) {
-                    myRandomMove = board.getRandomMove();
-                    board.playMove(myRandomMove);
-                    myMove += "%20" + myRandomMove.toString().replace(" ", "%20");
-                }
+                myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                data = new JSONObject(HttpHelper.GET(host +
-                        "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
-                iteration++;
+                data = new JSONObject(HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
 
             }
         } catch (Exception e) {
