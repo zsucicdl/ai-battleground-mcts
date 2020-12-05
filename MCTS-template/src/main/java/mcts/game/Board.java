@@ -3,6 +3,7 @@ package mcts.game;
 import java.util.*;
 
 public class Board {
+    private static final Random RANDOM = new Random();
     private int turns;
 
     private Builder[] players;
@@ -214,7 +215,7 @@ public class Board {
 
     public Move getRandomMove(){
         List<Move> possibleMoves = getLegalMoves();
-        int index = new Random().nextInt(possibleMoves.size());
+        int index = RANDOM.nextInt(possibleMoves.size());
         return possibleMoves.get(index);
     }
 

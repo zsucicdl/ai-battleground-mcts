@@ -65,6 +65,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
         String host = "http://localhost:9080/";
         try {
             // JOIN
@@ -109,6 +110,12 @@ public class Main {
 
 
                 String myMove = "";
+                List<Move> moves = board.getLegalMoves();
+                System.out.println(moves.size());
+                if(moves.size() <= 5){
+                    moves.forEach(m -> System.out.println(m.toString()));
+                }
+
                 if(amIFirst && iteration == 0){
                     Move myRandomMove = board.getRandomMove();
                     board.playMove(myRandomMove);
@@ -165,6 +172,7 @@ public class Main {
                     myMove += move.toString();
                     iteration++;
                 }
+                System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
                 data = new JSONObject(HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));

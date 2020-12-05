@@ -28,8 +28,6 @@ public class City {
     public void upgrade(){
         if (this.level == 1){
             this.level++;
-        } else{
-            throw new IllegalStateException();
         }
     }
 
