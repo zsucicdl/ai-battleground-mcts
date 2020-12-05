@@ -104,18 +104,31 @@ public class Main {
                 // Player ID
                 int playerId = res.getInt("playerID");
                 // DOHVATI MOJ POTEZ
-                String myRandomMove = board.getRandomMove().toString().replace(" ", "%20");
+                Move myRandomMove = board.getRandomMove();
+                board.playMove(myRandomMove);
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
                 JSONObject enemyJSON = new JSONObject(HttpHelper.GET(host +
-                        "train/doAction?playerID=1&gameID=1&action=" + myRandomMove));
+                        "train/doAction?playerID=1&gameID=1&action=" + myRandomMove.toString().replace(" ", "%20")));
                 iteration++;
 
                 String enemyAction = enemyJSON.getString("result");
-
                 // PROVEDI POTEZ PROTIVNIKA
                 Move move = Move.fromString(enemyAction);
                 board.playMove(move);
                 iteration++;
+
+                if (iteration == 2) {
+                    enemyJSON = new JSONObject(HttpHelper.GET(host +
+                            "train/doAction?playerID=1&gameID=1&action=" + myActions.get(iteration)));
+
+                    enemyAction = enemyJSON.getString("result");
+                    // PROVEDI POTEZ PROTIVNIKA
+                    move = Move.fromString(enemyAction);
+                    board.playMove(move);
+                    iteration++;
+                }
+
+
             }
         } catch (Exception e) {
             e.printStackTrace();

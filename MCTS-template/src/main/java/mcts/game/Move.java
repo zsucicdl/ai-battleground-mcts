@@ -60,10 +60,10 @@ public class Move {
         } else if(type.equals("move") || type.equals("buildroad") || type.equals("upgradetown")) {
             switch (type) {
                 case "move":
-                    moveType = MoveType.BUILD_ROAD;
+                    moveType = MoveType.MOVE;
                     break;
                 case "buildroad":
-                    moveType = MoveType.MOVE;
+                    moveType = MoveType.BUILD_ROAD;
                     break;
                 case "upgradetown":
                     moveType = MoveType.UPGRADE_TOWN;

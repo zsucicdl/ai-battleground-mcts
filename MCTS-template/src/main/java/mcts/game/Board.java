@@ -160,6 +160,9 @@ public class Board {
         HashMap<Integer, City> currentCities = indexCities[currentPlayerIndex];
         turns++;
         if(move.getType().equals(MoveType.INITIAL)){
+            if(turns == 0 || turns == 1){
+                currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
+            }
             indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
             indexXYRoads.put(new ValuesXY(move.getIndex1(), move.getIndex2()), players[currentPlayerIndex].getPlayerId());
         } else if(move.getType().equals(MoveType.MOVE)){
