@@ -5,7 +5,7 @@ import java.util.HashMap;
 public class Builder {
     private int playerId;
     private Intersection currentIntersection;
-    private HashMap<Resource, Integer> availableResources;
+    private HashMap<Resource, Integer> availableResources = new HashMap<>();
 
     private int points;
 
