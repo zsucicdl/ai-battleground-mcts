@@ -1,7 +1,6 @@
 package mcts.api;
 
 import mcts.game.*;
-import mcts.montecarlo.MonteCarloTreeSearch;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,11 +8,11 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class Main3 {
+public class MainBotRandom {
 
     private static String playerId = "1";
     private static String gameId = "1";
-
+    
     public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap, boolean amIFirst) throws JSONException {
 
         Map<ValuesXY, Field> fields = new HashMap<>();
@@ -69,11 +68,9 @@ public class Main3 {
 
         String host = "http://localhost:9080/";
         try {
-            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch();
             // JOIN
             Scanner sc = new Scanner(System.in);
-            String pid = "1";
-            JSONObject data = new JSONObject(HttpHelper.GET(host + "train/play?playerID=" + pid + "&gameID=1"));
+            JSONObject data = new JSONObject(HttpHelper.GET(host + "game/play?playerID=" + playerId + "&gameID=1"));
             int iteration = 0;
             boolean amIFirst = true;
             Board board = null;
@@ -85,6 +82,7 @@ public class Main3 {
                     // Action
                     String action = result.getString("action");
                     enemyAction = action;
+
                     // Player ID
                     int playerId = data.getInt("playerID");
                     // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
@@ -108,12 +106,9 @@ public class Main3 {
                 } else{
                     enemyAction = data.getString("result");
                 }
-
-
                 String myMove = "";
                 if(amIFirst && iteration == 0){
-                    Move myRandomMove = mcts.findNextMove(board);
-                    System.out.println(myRandomMove.toString());
+                    Move myRandomMove = board.getRandomMove();
                     board.playMove(myRandomMove);
                     myMove += myRandomMove.toString();
                     iteration++;
@@ -125,15 +120,14 @@ public class Main3 {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = mcts.findNextMove(board);
-                    System.out.println(move.toString());
+                    Move move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "doAction?playerID=" + playerId + "&gameID=1&action=" + myMove);
 
                     myMove = "";
-                    move = mcts.findNextMove(board);
+                    move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -141,16 +135,15 @@ public class Main3 {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    Move move = mcts.findNextMove(board);
+                    Move move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
 
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "doAction?playerID=" + playerId + "&gameID=1&action=" + myMove);
 
                     myMove = "";
-
-                    move = mcts.findNextMove(board);
+                    move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -166,10 +159,11 @@ public class Main3 {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = mcts.findNextMove(board);
+                    Move move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
                 } else {
+
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
@@ -178,15 +172,15 @@ public class Main3 {
                     if(moves.size() <= 5){
                         moves.forEach(m -> System.out.println(m.toString()));
                     }
-                    Move move = mcts.findNextMove(board);
+                    Move move = board.getRandomMove();
+                    System.out.println("MyMove: " + move.toString());
                     board.playMove(move);
                     myMove += move.toString();
                     iteration++;
-                    System.out.println("My move: " + move.toString());
                 }
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                data = new JSONObject(HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
+                data = new JSONObject(HttpHelper.GET(host + "doAction?playerID=" + playerId + "&gameID=1&action=" + myMove));
 
             }
         } catch (Exception e) {

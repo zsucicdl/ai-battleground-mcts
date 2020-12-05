@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class Main2 {
+public class MainBotMCTS_Train {
 
     private static String playerId = "1";
     private static String gameId = "1";
@@ -72,8 +72,7 @@ public class Main2 {
             MonteCarloTreeSearch mcts = new MonteCarloTreeSearch();
             // JOIN
             Scanner sc = new Scanner(System.in);
-            String pid = "2";
-            JSONObject data = new JSONObject(HttpHelper.GET(host + "game/play?playerID=" + pid + "&gameID=1"));
+            JSONObject data = new JSONObject(HttpHelper.GET(host + "train/play?playerID=" + playerId + "&gameID=1"));
             int iteration = 0;
             boolean amIFirst = true;
             Board board = null;
@@ -111,14 +110,9 @@ public class Main2 {
 
 
                 String myMove = "";
-                List<Move> moves = board.getLegalMoves();
-                System.out.println(moves.size());
-                if(moves.size() <= 5){
-                    moves.forEach(m -> System.out.println(m.toString()));
-                }
-
                 if(amIFirst && iteration == 0){
                     Move myRandomMove = mcts.findNextMove(board);
+                    System.out.println(myRandomMove.toString());
                     board.playMove(myRandomMove);
                     myMove += myRandomMove.toString();
                     iteration++;
@@ -135,7 +129,7 @@ public class Main2 {
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "train/doAction?playerID=" + playerId + "&gameID=1&action=" + myMove);
 
                     myMove = "";
                     move = mcts.findNextMove(board);
@@ -151,7 +145,7 @@ public class Main2 {
                     myMove += move.toString();
 
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "train/doAction?playerID=" + playerId + "&gameID=1&action=" + myMove);
 
                     myMove = "";
 
@@ -178,15 +172,20 @@ public class Main2 {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
+                    List<Move> moves = board.getLegalMoves();
+                    System.out.println("Possible moves: " + moves.size());
+                    if(moves.size() <= 5){
+                        moves.forEach(m -> System.out.println(m.toString()));
+                    }
                     Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration++;
+                    System.out.println("My move: " + move.toString());
                 }
-                System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                data = new JSONObject(HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
+                data = new JSONObject(HttpHelper.GET(host + "train/doAction?playerID=" + playerId + "&gameID=1&action=" + myMove));
 
             }
         } catch (Exception e) {

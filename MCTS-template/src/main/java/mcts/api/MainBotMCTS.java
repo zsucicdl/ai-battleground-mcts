@@ -9,9 +9,9 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class Main {
+public class MainBotMCTS {
 
-    private static String playerId = "2"; // STAVITI STA NAM DAJU
+    private static String playerId = "2";
     private static String gameId = "1";
 
     public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap, boolean amIFirst) throws JSONException {
