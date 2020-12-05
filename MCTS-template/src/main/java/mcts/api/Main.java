@@ -107,15 +107,7 @@ public class Main {
                 } else{
                     enemyAction = data.getString("result");
                 }
-
-
                 String myMove = "";
-                List<Move> moves = board.getLegalMoves();
-                System.out.println(moves.size());
-                if(moves.size() <= 5){
-                    moves.forEach(m -> System.out.println(m.toString()));
-                }
-
                 if(amIFirst && iteration == 0){
                     Move myRandomMove = board.getRandomMove();
                     board.playMove(myRandomMove);
@@ -152,7 +144,6 @@ public class Main {
                     HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
-
                     move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
@@ -169,15 +160,22 @@ public class Main {
                     board.playMove(move);
                     myMove += move.toString();
                 } else {
+
+
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
+                    List<Move> moves = board.getLegalMoves();
+                    System.out.println("Possible moves: " + moves.size());
+                    if(moves.size() <= 5){
+                        moves.forEach(m -> System.out.println(m.toString()));
+                    }
                     Move move = board.getRandomMove();
+                    System.out.println("MyMove: " + move.toString());
                     board.playMove(move);
                     myMove += move.toString();
                     iteration++;
                 }
-                System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
                 String s = HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);

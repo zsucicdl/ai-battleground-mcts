@@ -6,6 +6,7 @@ public class City {
 
     public City(Intersection intersection) {
         this.intersection = intersection;
+        this.level = 1;
     }
 
     public City(Intersection intersection, int level) {

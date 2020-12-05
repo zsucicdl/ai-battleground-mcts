@@ -152,7 +152,9 @@ public class Board {
             }
 
             // EMPTY
-            moves.add(new Move(MoveType.EMPTY));
+            if(turns >= 4){
+                moves.add(new Move(MoveType.EMPTY));
+            }
         }
         return moves;
     }
@@ -236,5 +238,10 @@ public class Board {
     public void buildRoad(int index1, int index2, int playerId){
         indexXYRoads.put(new ValuesXY(index1, index2), playerId);
         indexXYRoads.put(new ValuesXY(index2, index1), playerId);
+    }
+
+    public void addResource(Builder currentPlayer, Resource resource, int value){
+        int currentValue = currentPlayer.getAvailableResources().get(resource);
+        currentPlayer.getAvailableResources().put(resource, currentValue + value);
     }
 }
