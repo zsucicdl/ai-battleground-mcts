@@ -1,9 +1,8 @@
 package mcts.montecarlo;
 
+import mcts.tree.Node;
 
 public class UCT {
-    /*
-
     public static double uctValue(int totalVisit, double nodeWinScore, int nodeVisit) {
         if (nodeVisit == 0) {
             return Integer.MAX_VALUE;
@@ -12,11 +11,15 @@ public class UCT {
     }
 
     static Node findBestNodeWithUCT(Node node) {
-        int parentVisit = node.getState().getVisitCount();
-        return Collections.max(
-          node.getChildArray(),
-          Comparator.comparing(c -> uctValue(parentVisit, c.getState().getWinScore(), c.getState().getVisitCount())));
+        double maxValue = Double.MIN_VALUE;
+        Node bestNode = null;
+        for(Node childNode : node.getChildArray()){
+            double uctValue = uctValue(node.getState().getVisitCount(), childNode.getState().getWinScore(), childNode.getState().getVisitCount());
+            if(uctValue > maxValue){
+                maxValue = uctValue;
+                bestNode = childNode;
+            }
+        }
+        return bestNode;
     }
-
-     */
 }

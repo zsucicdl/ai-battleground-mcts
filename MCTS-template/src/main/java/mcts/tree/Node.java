@@ -1,7 +1,12 @@
 package mcts.tree;
 
+import mcts.montecarlo.State;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class Node {
-    /*
     State state;
     Node parent;
     List<Node> childArray;
@@ -61,15 +66,19 @@ public class Node {
     }
 
     public Node getRandomChildNode() {
-        int noOfPossibleMoves = this.childArray.size();
-        int selectRandom = (int) (Math.random() * noOfPossibleMoves);
-        return this.childArray.get(selectRandom);
+        int index = new Random().nextInt(childArray.size());
+        return this.childArray.get(index);
     }
 
-    public Node getChildWithMaxScore() {
-        return this.childArray.stream().max(Comparator.comparing(c -> c.getState().getVisitCount())).get();
+    public Node getChildWithMaxVisits() {
+        int maxScore = Integer.MIN_VALUE;
+        Node bestChild = null;
+        for(Node childNode : childArray) {
+            if (childNode.getState().getVisitCount() > maxScore){
+                maxScore = childNode.getState().getVisitCount();
+                bestChild = childNode;
+            }
+        }
+        return bestChild;
     }
-
-     */
-
 }

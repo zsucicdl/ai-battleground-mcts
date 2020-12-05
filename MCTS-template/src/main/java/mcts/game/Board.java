@@ -212,4 +212,10 @@ public class Board {
         return possibleMoves.get(index);
     }
 
+    public boolean isRunning(){
+        if(players[0].getPoints() < 16 && players[1].getPoints() < 16){
+            return true;
+        }
+        return false;
+    }
 }

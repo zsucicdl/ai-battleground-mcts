@@ -1,5 +1,11 @@
 package mcts.montecarlo;
 
+import mcts.game.Board;
+import mcts.tree.Node;
+import mcts.tree.Tree;
+
+import java.util.List;
+
 public class MonteCarloTreeSearch {
     private static final int SIMULATION_DEPTH = 10;
 
@@ -9,22 +15,19 @@ public class MonteCarloTreeSearch {
     public MonteCarloTreeSearch() {
     }
 
-    public Board findNextMove(Board board, int playerNo) {
+    public Board findNextMove(Board board) {
         long start = System.currentTimeMillis();
-        long end = start + 200; // TODO set time limit
+        long end = start + 4800; // TODO set time limit
 
-        this.playerNo = playerNo;
-        this.opponent = 3 - playerNo;
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
         rootNode.getState().setBoard(board);
-        rootNode.getState().setPlayerNo(opponent);
 
         while (System.currentTimeMillis() < end) {
             // Phase 1 - Selection
             Node promisingNode = selectPromisingNode(rootNode);
             // Phase 2 - Expansion
-            if (promisingNode.getState().getBoard().checkStatus() == Board.IN_PROGRESS)
+            if (promisingNode.getState().getBoard().isRunning())
                 expandNode(promisingNode);
 
             // Phase 3 - Simulation
@@ -37,7 +40,7 @@ public class MonteCarloTreeSearch {
             backPropogation(nodeToExplore, score);
         }
 
-        Node winnerNode = rootNode.getChildWithMaxScore();
+        Node winnerNode = rootNode.getChildWithMaxVisits();
         return winnerNode.getState().getBoard();
     }
 
@@ -54,7 +57,6 @@ public class MonteCarloTreeSearch {
         possibleStates.forEach(state -> {
             Node newNode = new Node(state);
             newNode.setParent(node);
-            newNode.getState().setPlayerNo(node.getState().getOpponent());
             node.getChildArray().add(newNode);
         });
     }
@@ -62,44 +64,24 @@ public class MonteCarloTreeSearch {
     private int simulateRandomPlayout(Node node) {
         Node tempNode = node.copy();
         State tempState = tempNode.getState();
-        int boardStatus = tempState.getBoard().checkStatus();
-
-        // TODO implement hard punish for loss
-        if (boardStatus == opponent) {
-            tempNode.getParent().getState().setWinScore(Integer.MIN_VALUE);
-            return boardStatus;
-        }
+        int score = 0;
 
         // TODO implement simulation
         for(int i = 0; i < SIMULATION_DEPTH; i++) {
-            tempState.togglePlayer();
             tempState.randomPlay();
-
-            boardStatus = tempState.getBoard().checkStatus();
-            if(boardStatus != Board.IN_PROGRESS){
+            if(tempState.getBoard().isRunning()){
                 break;
             }
         }
-        return boardStatus;
+        return score;
     }
 
     private void backPropogation(Node nodeToExplore, int score) {
         Node tempNode = nodeToExplore;
         while (tempNode != null) {
             tempNode.getState().incrementVisit();
-            // TODO implement punish/reward function
+            tempNode.getState().addScore(score);
             tempNode = tempNode.getParent();
         }
     }
-
-    public static void main(String[] args) {
-        Board board = new Board();
-        MonteCarloTreeSearch mcts = new MonteCarloTreeSearch();
-
-        for(int i = 0; i < 9; i++) {
-            board = mcts.findNextMove(board, i % 2 + 1);
-            board.printBoard();
-        }
-    }
-
 }
