@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class State {
+    private Move initialMove;
 
     private Board board;
     private int visitCount;
@@ -15,8 +16,13 @@ public class State {
     public State() {
     }
 
-    public State(Board board) {
+    public State(Board board, Move initialMove) {
         this.board = board.copy();
+        this.initialMove = initialMove;
+    }
+
+    public Move getInitialMove() {
+        return initialMove;
     }
 
     public State copy(){
@@ -56,7 +62,7 @@ public class State {
         List<State> possibleStates = new ArrayList<>();
         List<Move> legalMoves = this.board.getLegalMoves();
         legalMoves.forEach(move -> {
-            State newState = new State(this.board);
+            State newState = new State(this.board, move);
             newState.getBoard().playMove(move);
             possibleStates.add(newState);
         });

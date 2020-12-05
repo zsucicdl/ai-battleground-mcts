@@ -80,6 +80,10 @@ public class Board {
         }
     }
 
+    public Builder getCurrentPlayer(){
+        return players[getCurrentPlayerIndex()];
+    }
+
     public List<Move> getLegalMoves(){
         Builder currentPlayer = players[getCurrentPlayerIndex()];
         Builder opponentPlayer = players[1 - getCurrentPlayerIndex()];

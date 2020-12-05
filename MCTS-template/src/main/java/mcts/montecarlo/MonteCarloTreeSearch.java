@@ -1,13 +1,14 @@
 package mcts.montecarlo;
 
 import mcts.game.Board;
+import mcts.game.Move;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
 import java.util.List;
 
 public class MonteCarloTreeSearch {
-    private static final int SIMULATION_DEPTH = 10;
+    private static final int SIMULATION_DEPTH = 5;
 
     private int opponent;
     private int playerNo;
@@ -15,9 +16,9 @@ public class MonteCarloTreeSearch {
     public MonteCarloTreeSearch() {
     }
 
-    public Board findNextMove(Board board) {
+    public Move findNextMove(Board board) {
         long start = System.currentTimeMillis();
-        long end = start + 4800; // TODO set time limit
+        long end = start + 500; // TODO set time limit
 
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
@@ -41,7 +42,7 @@ public class MonteCarloTreeSearch {
         }
 
         Node winnerNode = rootNode.getChildWithMaxVisits();
-        return winnerNode.getState().getBoard();
+        return winnerNode.getState().getInitialMove();
     }
 
     private Node selectPromisingNode(Node rootNode) {
@@ -69,7 +70,8 @@ public class MonteCarloTreeSearch {
         // TODO implement simulation
         for(int i = 0; i < SIMULATION_DEPTH; i++) {
             tempState.randomPlay();
-            if(tempState.getBoard().isRunning()){
+            score = tempState.getBoard().getCurrentPlayer().getPoints();
+            if(!tempState.getBoard().isRunning()){
                 break;
             }
         }
