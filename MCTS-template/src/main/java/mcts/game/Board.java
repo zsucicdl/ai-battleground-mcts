@@ -174,7 +174,7 @@ public class Board {
                 currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
             }
             indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
-            indexXYRoads.put(new ValuesXY(move.getIndex1(), move.getIndex2()), players[currentPlayerIndex].getPlayerId());
+            buildRoad(move.getIndex1(), move.getIndex2(), players[currentPlayerIndex].getPlayerId());
         } else if(move.getType().equals(MoveType.MOVE)){
             if(getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1()) != currentPlayer.getPlayerId()){
                 currentPlayer.getAvailableResources().compute(Resource.SHEEP, (key, value) -> value - 50);
@@ -182,7 +182,7 @@ public class Board {
             }
             currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
         } else if(move.getType().equals(MoveType.BUILD_ROAD)){
-            indexXYRoads.put(new ValuesXY(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1()), currentPlayer.getPlayerId());
+            buildRoad(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1(), currentPlayer.getPlayerId());
             currentPlayer.getAvailableResources().compute(Resource.WOOD, (key, value) -> value - 100);
             currentPlayer.getAvailableResources().compute(Resource.CLAY, (key, value) -> value - 100);
         } else if(move.getType().equals(MoveType.BUILD_TOWN)){
@@ -231,5 +231,10 @@ public class Board {
             return 0;
         }
         return indexXYRoads.get(new ValuesXY(index1, index2));
+    }
+
+    public void buildRoad(int index1, int index2, int playerId){
+        indexXYRoads.put(new ValuesXY(index1, index2), playerId);
+        indexXYRoads.put(new ValuesXY(index2, index1), playerId);
     }
 }
