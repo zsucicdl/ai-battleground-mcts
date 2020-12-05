@@ -126,7 +126,7 @@ public class Main {
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
                     move = board.getRandomMove();
@@ -142,7 +142,7 @@ public class Main {
                     myMove += move.toString();
 
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
                     move = board.getRandomMove();
@@ -179,7 +179,7 @@ public class Main {
                 }
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                String s = HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                String s = HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
                 data = new JSONObject(s);
 
             }

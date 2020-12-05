@@ -133,7 +133,7 @@ public class Main2 {
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
                     move = board.getRandomMove();
@@ -149,7 +149,7 @@ public class Main2 {
                     myMove += move.toString();
 
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
 
@@ -160,7 +160,11 @@ public class Main2 {
                 }else if(!amIFirst && iteration == 3){
                     String[] words = enemyAction.split(" ");
                     String move1 = words[0] + " " + words[1] + " " + words[2];
-                    String move2 = words[3] + " " + words[4] + " " + words[5];
+                    String move2 = "";
+                    for (String s : words) {
+                        move2 += s + " ";
+                    }
+                    move2 = move2.strip();
                     board.playMove(Move.fromString(move1));
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
@@ -180,7 +184,7 @@ public class Main2 {
                 System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                data = new JSONObject(HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
+                data = new JSONObject(HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
 
             }
         } catch (Exception e) {
