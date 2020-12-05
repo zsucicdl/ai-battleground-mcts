@@ -4,6 +4,10 @@ public class City {
     private Intersection intersection;
     private int level;
 
+    public City(Intersection intersection) {
+        this.intersection = intersection;
+    }
+
     public City(Intersection intersection, int level) {
         this.intersection = intersection;
         this.level = level;

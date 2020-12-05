@@ -1,9 +1,6 @@
 package mcts.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Board {
     private int turns;
@@ -66,11 +63,25 @@ public class Board {
         return new Board(0, players, newIndexCities, indexIntersections, intersectionRoads);
     }
 
+    public int getCurrentPlayerIndex(){
+        if(turns == 0 || turns == 3){
+            return 0;
+        } else if(turns == 1 || turns == 2){
+            return 1;
+        }else {
+            if(turns % 2 == 0){
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    }
+
     public List<Move> getLegalMoves(){
-        Builder currentPlayer = players[turns % 2];
-        Builder opponentPlayer = players[(turns + 1) % 2];
-        HashMap<Integer, City> currentCities = indexCities[turns % 2];
-        HashMap<Integer, City> opponentCities = indexCities[(turns + 1) % 2];
+        Builder currentPlayer = players[getCurrentPlayerIndex()];
+        Builder opponentPlayer = players[1 - getCurrentPlayerIndex()];
+        HashMap<Integer, City> currentCities = indexCities[getCurrentPlayerIndex()];
+        HashMap<Integer, City> opponentCities = indexCities[1 - getCurrentPlayerIndex()];
 
         List<Move> moves = new ArrayList<>();
         // check initial move
@@ -141,6 +152,33 @@ public class Board {
             moves.add(new Move(MoveType.EMPTY));
         }
         return moves;
+    }
+
+    public void playMove(Move move){
+        int currentPlayerIndex = getCurrentPlayerIndex();
+        Builder currentPlayer = players[currentPlayerIndex];
+        HashMap<Integer, City> currentCities = indexCities[currentPlayerIndex];
+        turns++;
+        if(move.getType().equals(MoveType.INITIAL)){
+            indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
+            indexXYRoads.put(new ValuesXY(move.getIndex1(), move.getIndex2()), players[currentPlayerIndex].getPlayerId());
+        } else if(move.getType().equals(MoveType.MOVE)){
+
+        } else if(move.getType().equals(MoveType.BUILD_ROAD)){
+
+        } else if(move.getType().equals(MoveType.BUILD_TOWN)){
+
+        } else if(move.getType().equals(MoveType.UPGRADE_TOWN)){
+
+        } else if(move.getType().equals(MoveType.EMPTY)){
+            return;
+        }
+    }
+
+    public Move getRandomMove(){
+        List<Move> possibleMoves = getLegalMoves();
+        int index = new Random().nextInt(possibleMoves.size());
+        return possibleMoves.get(index);
     }
 
 }
