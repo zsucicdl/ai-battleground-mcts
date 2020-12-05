@@ -60,7 +60,7 @@ public class State {
 
     public List<State> getAllPossibleStates() {
         List<State> possibleStates = new ArrayList<>();
-        List<Move> legalMoves = this.board.getLegalMoves();
+        List<Move> legalMoves = this.board.getLegalMoves(board.getTurns());
         legalMoves.forEach(move -> {
             State newState = new State(this.board, move);
             newState.getBoard().playMove(move);

@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class MainBotMCTS_Train {
 
@@ -111,7 +110,7 @@ public class MainBotMCTS_Train {
 
                 String myMove = "";
                 if(amIFirst && iteration == 0){
-                    Move myRandomMove = mcts.findNextMove(board);
+                    Move myRandomMove = mcts.findNextMove(board, iteration);
                     System.out.println(myRandomMove.toString());
                     board.playMove(myRandomMove);
                     myMove += myRandomMove.toString();
@@ -124,7 +123,7 @@ public class MainBotMCTS_Train {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = mcts.findNextMove(board);
+                    Move move = mcts.findNextMove(board, iteration);
                     System.out.println(move.toString());
                     board.playMove(move);
                     myMove += move.toString();
@@ -132,7 +131,7 @@ public class MainBotMCTS_Train {
                     HttpHelper.GET(host + "train/doAction?playerID=" + playerId + "&gameID=1&action=" + myMove);
 
                     myMove = "";
-                    move = mcts.findNextMove(board);
+                    move = mcts.findNextMove(board, iteration);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -140,7 +139,7 @@ public class MainBotMCTS_Train {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    Move move = mcts.findNextMove(board);
+                    Move move = mcts.findNextMove(board, iteration);
                     board.playMove(move);
                     myMove += move.toString();
 
@@ -149,7 +148,7 @@ public class MainBotMCTS_Train {
 
                     myMove = "";
 
-                    move = mcts.findNextMove(board);
+                    move = mcts.findNextMove(board, iteration);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -165,19 +164,19 @@ public class MainBotMCTS_Train {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = mcts.findNextMove(board);
+                    Move move = mcts.findNextMove(board, iteration);
                     board.playMove(move);
                     myMove += move.toString();
                 } else {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    List<Move> moves = board.getLegalMoves();
+                    List<Move> moves = board.getLegalMoves(board.getTurns());
                     System.out.println("Possible moves: " + moves.size());
                     if(moves.size() <= 5){
                         moves.forEach(m -> System.out.println(m.toString()));
                     }
-                    Move move = mcts.findNextMove(board);
+                    Move move = mcts.findNextMove(board, iteration);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration++;

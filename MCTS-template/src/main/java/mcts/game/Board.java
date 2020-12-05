@@ -101,11 +101,25 @@ public class Board {
         }
     }
 
+    public int getCurrentPlayerIndex(int turns){
+        if(turns == 0 || turns == 3){
+            return 0;
+        } else if(turns == 1 || turns == 2){
+            return 1;
+        }else {
+            if(turns % 2 == 0){
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+    }
+
     public Builder getCurrentPlayer(){
         return players[getCurrentPlayerIndex()];
     }
 
-    public List<Move> getLegalMoves(){
+    public List<Move> getLegalMoves(int iterator){
         Builder currentPlayer = players[getCurrentPlayerIndex()];
         Builder opponentPlayer = players[1 - getCurrentPlayerIndex()];
         HashMap<Integer, City> currentCities = indexCities[getCurrentPlayerIndex()];
@@ -113,7 +127,7 @@ public class Board {
 
         List<Move> moves = new ArrayList<>();
         // check initial move
-        if(turns < 4) {
+        if(iterator < 4) {
             for(Intersection intersection : indexIntersections.values()){
                 if(currentCities.containsKey(intersection.getIndex()) || opponentCities.containsKey(intersection.getIndex())){
                     continue;
@@ -130,8 +144,6 @@ public class Board {
             for(Intersection intersection : currentPlayer.getCurrentIntersection().getAdjacentIntersections()) {
                 // MOVE
                 if (getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex()) == currentPlayer.getPlayerId()) {
-                    moves.add(new Move(MoveType.MOVE, intersection.getIndex()));
-                } else if (currentPlayer.getAvailableResources().get(Resource.SHEEP) >= 50 && currentPlayer.getAvailableResources().get(Resource.WHEAT) >= 50) {
                     moves.add(new Move(MoveType.MOVE, intersection.getIndex()));
                 }
 
@@ -177,7 +189,7 @@ public class Board {
             }
 
             // EMPTY
-            if(turns >= 4){
+            if(iterator >= 4){
                 moves.add(new Move(MoveType.EMPTY));
             }
         }
@@ -245,9 +257,50 @@ public class Board {
     }
 
     public Move getRandomMove(){
-        List<Move> possibleMoves = getLegalMoves();
+        List<Move> possibleMoves = getLegalMoves(turns);
         int index = RANDOM.nextInt(possibleMoves.size());
         return possibleMoves.get(index);
+    }
+
+    public List<Move> getLogicalMoves(){
+        List<Move> possibleMoves = getLegalMoves(turns);
+        if(possibleMoves.get(0).getType() == MoveType.INITIAL){
+            return possibleMoves;
+        }
+        List<Move> logicalMoves = new ArrayList<>();
+        for(Move m : possibleMoves){
+            if(m.getType() == MoveType.BUILD_TOWN){
+                logicalMoves.add(m);
+                break;
+            }
+        }
+        if(!logicalMoves.isEmpty()){
+            return logicalMoves;
+        }
+        for(Move m : possibleMoves) {
+            if (m.getType() == MoveType.UPGRADE_TOWN) {
+                logicalMoves.add(m);
+            }
+        }
+        if(!logicalMoves.isEmpty()){
+            return logicalMoves;
+        }
+
+        for(Move m : possibleMoves){
+            if(m.getType() == MoveType.BUILD_ROAD){
+                logicalMoves.add(m);
+            }
+        }
+        if(!logicalMoves.isEmpty()){
+            return logicalMoves;
+        }
+
+        for(Move m : possibleMoves){
+            if(m.getType() == MoveType.MOVE){
+                logicalMoves.add(m);
+            }
+        }
+        return logicalMoves;
     }
 
     public boolean isRunning(){
