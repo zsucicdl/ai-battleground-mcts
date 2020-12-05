@@ -55,7 +55,8 @@ public class Board {
         }
         //copy players
         Builder[] newPlayers = new Builder[] {players[0].copy(), players[1].copy()};
-        return new Board(turns, newPlayers, newIndexCities, indexIntersections, newIndexXYRoads);
+        int myturns = Integer.valueOf(turns);
+        return new Board(myturns, newPlayers, newIndexCities, indexIntersections, newIndexXYRoads);
     }
 
     public static Board initBoard(List<List<Integer>> intersectionToIntersection, List<List<Field>> intersectionToField, boolean amIFirst){
@@ -179,6 +180,10 @@ public class Board {
             if(turns >= 4){
                 moves.add(new Move(MoveType.EMPTY));
             }
+        }
+        System.out.println("PROBA");
+        for (Move move : moves) {
+            System.out.println(move.toString());
         }
         return moves;
     }

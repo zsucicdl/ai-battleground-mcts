@@ -4,6 +4,7 @@ import mcts.game.*;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,7 +19,16 @@ public class MonteCarloTreeSearch {
 
     public Move findNextMove(Board board) {
         long start = System.currentTimeMillis();
-        long end = start + 3000; // TODO set time limit
+        long end = start + 1500; // TODO set time limit
+
+        for (Move m : board.getLegalMoves()) {
+            if (m.getType() == MoveType.BUILD_TOWN) {
+                return m;
+            }
+            if (m.getType() == MoveType.UPGRADE_TOWN) {
+                return m;
+            }
+        }
 
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
@@ -60,6 +70,7 @@ public class MonteCarloTreeSearch {
             newNode.setParent(node);
             node.getChildArray().add(newNode);
         });
+
     }
 
     private int simulateRandomPlayout(Node node) {
@@ -166,6 +177,8 @@ public class MonteCarloTreeSearch {
             }
             if(flags.keySet().size() < 4){
                 score = 0;
+            } else {
+                score *= 100.;
             }
         }
         return score;
