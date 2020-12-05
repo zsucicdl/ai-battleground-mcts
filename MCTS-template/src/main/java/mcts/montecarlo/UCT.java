@@ -12,7 +12,7 @@ public class UCT {
 
     static Node findBestNodeWithUCT(Node node) {
         double maxValue = Double.MIN_VALUE;
-        Node bestNode = null;
+        Node bestNode = node;
         for(Node childNode : node.getChildArray()){
             double uctValue = uctValue(node.getState().getVisitCount(), childNode.getState().getWinScore(), childNode.getState().getVisitCount());
             if(uctValue > maxValue){

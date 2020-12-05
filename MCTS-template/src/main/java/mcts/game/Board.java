@@ -20,6 +20,26 @@ public class Board {
         this.indexXYRoads = indexXYRoads;
     }
 
+    public int getTurns() {
+        return turns;
+    }
+
+    public Builder[] getPlayers() {
+        return players;
+    }
+
+    public HashMap<Integer, City>[] getIndexCities() {
+        return indexCities;
+    }
+
+    public HashMap<Integer, Intersection> getIndexIntersections() {
+        return indexIntersections;
+    }
+
+    public HashMap<ValuesXY, Integer> getIndexXYRoads() {
+        return indexXYRoads;
+    }
+
     public Board copy(){
         // copy cities
         HashMap<Integer, City>[] newIndexCities = new HashMap[] {new HashMap<>(), new HashMap<>()};

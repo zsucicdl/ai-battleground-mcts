@@ -1,6 +1,7 @@
 package mcts.api;
 
 import mcts.game.*;
+import mcts.montecarlo.MonteCarloTreeSearch;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,6 +69,7 @@ public class Main3 {
 
         String host = "http://localhost:9080/";
         try {
+            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch();
             // JOIN
             Scanner sc = new Scanner(System.in);
             String pid = "1";
@@ -110,14 +112,9 @@ public class Main3 {
 
 
                 String myMove = "";
-                List<Move> moves = board.getLegalMoves();
-                System.out.println(moves.size());
-                if(moves.size() <= 5){
-                    moves.forEach(m -> System.out.println(m.toString()));
-                }
-
                 if(amIFirst && iteration == 0){
-                    Move myRandomMove = board.getRandomMove();
+                    Move myRandomMove = mcts.findNextMove(board);
+                    System.out.println(myRandomMove.toString());
                     board.playMove(myRandomMove);
                     myMove += myRandomMove.toString();
                     iteration++;
@@ -129,14 +126,15 @@ public class Main3 {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
+                    System.out.println(move.toString());
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
                     HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
-                    move = board.getRandomMove();
+                    move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -144,7 +142,7 @@ public class Main3 {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
 
@@ -153,7 +151,7 @@ public class Main3 {
 
                     myMove = "";
 
-                    move = board.getRandomMove();
+                    move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -165,19 +163,24 @@ public class Main3 {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                 } else {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    Move move = board.getRandomMove();
+                    List<Move> moves = board.getLegalMoves();
+                    System.out.println("Possible moves: " + moves.size());
+                    if(moves.size() <= 5){
+                        moves.forEach(m -> System.out.println(m.toString()));
+                    }
+                    Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration++;
+                    System.out.println("My move: " + move.toString());
                 }
-                System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
                 data = new JSONObject(HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
