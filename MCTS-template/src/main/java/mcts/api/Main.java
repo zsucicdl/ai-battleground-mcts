@@ -5,10 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 public class Main {
 
@@ -70,18 +67,15 @@ public class Main {
         String host = "http://localhost:9080/";
         try {
             // JOIN
-            JSONObject res = new JSONObject(HttpHelper.GET(host + "train/play?playerID=1&gameID=1"));
+            Scanner sc = new Scanner(System.in);
+            String pid = "1";//sc.next();
+            JSONObject data = new JSONObject(HttpHelper.GET(host + "train/play?playerID=" + pid + "&gameID=1"));
             int iteration = 0;
-            ArrayList<String> myActions = new ArrayList<>();
-            myActions.add("initial%204%205");
-            myActions.add("initial%2050%2050");
-            myActions.add("initial%2050%2050");
-            myActions.add("initial%2050%2050");
+            int first_player = 0;
             Board board = null;
 
-            while (res.getBoolean("success")) {
-                JSONObject result = res.getJSONObject("result");
-
+            while (data.getBoolean("success")) {
+                JSONObject result = data.getJSONObject("result");
                 // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
                 JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
 
@@ -94,40 +88,56 @@ public class Main {
                 // Lista sa susjedima intersectiona duljine 96, oblika [[1, 10], [0, 2], [1, 3, 12], ...]
                 JSONArray indexMap = result.getJSONArray("indexMap");
 
-                if (iteration == 0) {
-                    board = initGameState(intersectionCoordinates, mapTiles, indexMap);
-                }
-
                 // Action
                 String action = result.getString("action");
+                String enemyAction = "";
 
                 // Player ID
-                int playerId = res.getInt("playerID");
+                int playerId = data.getInt("playerID");
+                
+                if (iteration == 0) {
+                    if (action.equals("null")) {
+                        first_player = playerId;
+                    } else {
+                        if (playerId == 1) {
+                            first_player = 2;
+                        } else {
+                            first_player = 1;
+                        }
+                    }
+                    board = initGameState(intersectionCoordinates, mapTiles, indexMap);
+                }
+                boolean isFirst = (first_player == playerId);
+
+                if (!action.equals("null")) {
+                    enemyAction = new JSONObject(action).getString("result");
+                    String[] words = enemyAction.split(" ");
+                    if (words.length == 6) {
+                        String move1 = words[0] + " " +words[1] + " " + words[2];
+                        String move2 = words[3] + " " +words[4] + " " + words[5];
+                        board.playMove(Move.fromString(move1));
+                        board.playMove(Move.fromString(move2));
+                        iteration++;
+                    } else {
+                        Move move = Move.fromString(enemyAction);
+                        board.playMove(move);
+                    }
+                    iteration++;
+                }
+                String myMove = "";
                 // DOHVATI MOJ POTEZ
                 Move myRandomMove = board.getRandomMove();
                 board.playMove(myRandomMove);
-                // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                JSONObject enemyJSON = new JSONObject(HttpHelper.GET(host +
-                        "train/doAction?playerID=1&gameID=1&action=" + myRandomMove.toString().replace(" ", "%20")));
-                iteration++;
-
-                String enemyAction = enemyJSON.getString("result");
-                // PROVEDI POTEZ PROTIVNIKA
-                Move move = Move.fromString(enemyAction);
-                board.playMove(move);
-                iteration++;
-
-                if (iteration == 2) {
-                    enemyJSON = new JSONObject(HttpHelper.GET(host +
-                            "train/doAction?playerID=1&gameID=1&action=" + myActions.get(iteration)));
-
-                    enemyAction = enemyJSON.getString("result");
-                    // PROVEDI POTEZ PROTIVNIKA
-                    move = Move.fromString(enemyAction);
-                    board.playMove(move);
-                    iteration++;
+                myMove += myRandomMove.toString().replace(" ", "%20");
+                if (iteration == 3 && isFirst) {
+                    myRandomMove = board.getRandomMove();
+                    board.playMove(myRandomMove);
+                    myMove += "%20" + myRandomMove.toString().replace(" ", "%20");
                 }
-
+                // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
+                data = new JSONObject(HttpHelper.GET(host +
+                        "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
+                iteration++;
 
             }
         } catch (Exception e) {
