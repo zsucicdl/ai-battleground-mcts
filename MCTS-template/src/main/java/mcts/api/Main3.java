@@ -79,7 +79,6 @@ public class Main3 {
             Board board = null;
 
             while (data.getBoolean("success")) {
-                TimeUnit.SECONDS.sleep(1);
                 String enemyAction = "";
                 if(iteration == 0){
                     JSONObject result = data.getJSONObject("result");
@@ -158,7 +157,11 @@ public class Main3 {
                 }else if(!amIFirst && iteration == 3){
                     String[] words = enemyAction.split(" ");
                     String move1 = words[0] + " " + words[1] + " " + words[2];
-                    String move2 = words[3] + " " + words[4] + " " + words[5];
+                    String move2 = "";
+                    for (String s : words) {
+                        move2 += s + " ";
+                    }
+                    move2 = move2.strip();
                     board.playMove(Move.fromString(move1));
                     board.playMove(Move.fromString(move2));
                     iteration += 2;

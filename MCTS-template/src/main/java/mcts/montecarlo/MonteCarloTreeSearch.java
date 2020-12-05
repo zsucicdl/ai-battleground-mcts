@@ -164,7 +164,6 @@ public class MonteCarloTreeSearch {
                         score += f.getWeight() * 3;
                 }
             }
-            System.out.println("NUMBER OF FLAAAAGS: " + flags.keySet().size());
             if(flags.keySet().size() < 4){
                 score = 0;
             }

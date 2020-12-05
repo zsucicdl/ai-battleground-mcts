@@ -1,6 +1,7 @@
 package mcts.api;
 
 import mcts.game.*;
+import mcts.montecarlo.MonteCarloTreeSearch;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,6 +69,7 @@ public class Main2 {
 
         String host = "http://localhost:9080/";
         try {
+            MonteCarloTreeSearch mcts = new MonteCarloTreeSearch();
             // JOIN
             Scanner sc = new Scanner(System.in);
             String pid = "2";
@@ -77,7 +79,6 @@ public class Main2 {
             Board board = null;
 
             while (data.getBoolean("success")) {
-                TimeUnit.SECONDS.sleep(1);
                 String enemyAction = "";
                 if(iteration == 0){
                     JSONObject result = data.getJSONObject("result");
@@ -117,7 +118,7 @@ public class Main2 {
                 }
 
                 if(amIFirst && iteration == 0){
-                    Move myRandomMove = board.getRandomMove();
+                    Move myRandomMove = mcts.findNextMove(board);
                     board.playMove(myRandomMove);
                     myMove += myRandomMove.toString();
                     iteration++;
@@ -129,14 +130,15 @@ public class Main2 {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
+                    System.out.println(move.toString());
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
                     HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
-                    move = board.getRandomMove();
+                    move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -144,7 +146,7 @@ public class Main2 {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
 
@@ -153,7 +155,7 @@ public class Main2 {
 
                     myMove = "";
 
-                    move = board.getRandomMove();
+                    move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration += 2;
@@ -169,14 +171,14 @@ public class Main2 {
                     board.playMove(Move.fromString(move2));
                     iteration += 2;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                 } else {
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
-                    Move move = board.getRandomMove();
+                    Move move = mcts.findNextMove(board);
                     board.playMove(move);
                     myMove += move.toString();
                     iteration++;
