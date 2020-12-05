@@ -83,6 +83,7 @@ public class Main {
                     JSONObject result = data.getJSONObject("result");
                     // Action
                     String action = result.getString("action");
+                    enemyAction = action;
 
                     // Player ID
                     int playerId = data.getInt("playerID");
