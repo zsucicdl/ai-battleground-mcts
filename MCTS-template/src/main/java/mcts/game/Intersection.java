@@ -7,7 +7,8 @@ public class Intersection {
     private List<Field> adjacentFields;
     private Set<Intersection> adjacentIntersections;
 
-    public Intersection() {
+    public Intersection(int index) {
+        this.index = index;
         adjacentFields = new ArrayList<>();
         adjacentIntersections = new HashSet<>();
     }

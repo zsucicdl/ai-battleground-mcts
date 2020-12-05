@@ -1,13 +1,7 @@
 package mcts.montecarlo;
 
-import mcts.game.Board;
-import mcts.tree.Node;
-import mcts.tree.Tree;
-
-import java.util.List;
-
 public class MonteCarloTreeSearch {
-
+/*
     private static final int SIMULATION_DEPTH = 10;
 
     private int opponent;
@@ -108,4 +102,6 @@ public class MonteCarloTreeSearch {
             board.printBoard();
         }
     }
+
+ */
 }

@@ -1,12 +1,8 @@
 package mcts.montecarlo;
 
 
-import mcts.tree.Node;
-
-import java.util.Collections;
-import java.util.Comparator;
-
 public class UCT {
+    /*
 
     public static double uctValue(int totalVisit, double nodeWinScore, int nodeVisit) {
         if (nodeVisit == 0) {
@@ -21,4 +17,6 @@ public class UCT {
           node.getChildArray(),
           Comparator.comparing(c -> uctValue(parentVisit, c.getState().getWinScore(), c.getState().getVisitCount())));
     }
+
+     */
 }

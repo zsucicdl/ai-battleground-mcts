@@ -1,7 +1,6 @@
 package mcts.game;
 
 import java.util.*;
-import java.util.function.BiFunction;
 
 public class Board {
     private int turns;
@@ -45,12 +44,12 @@ public class Board {
         int n = intersectionToIntersection.size();
         for(int i = 0; i < n; i++){
             if(!indexIntersections.containsKey(i)){
-                indexIntersections.put(i, new Intersection());
+                indexIntersections.put(i, new Intersection(i));
             }
             Intersection currentIntersection = indexIntersections.get(i);
             for(Integer index : intersectionToIntersection.get(i)){
                 if(!indexIntersections.containsKey(index)){
-                    indexIntersections.put(index, new Intersection());
+                    indexIntersections.put(index, new Intersection(index));
                 }
                 currentIntersection.addAdjacentIntersection(indexIntersections.get(index));
             }

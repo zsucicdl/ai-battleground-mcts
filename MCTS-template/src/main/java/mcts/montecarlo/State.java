@@ -1,12 +1,7 @@
 package mcts.montecarlo;
 
-import mcts.game.Board;
-import mcts.game.Move;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class State {
+    /*
     private Board board;
     private int playerId;
     private int visitCount;
@@ -96,4 +91,6 @@ public class State {
     void togglePlayer() {
         this.playerNo = 3 - this.playerNo;
     }
+
+     */
 }

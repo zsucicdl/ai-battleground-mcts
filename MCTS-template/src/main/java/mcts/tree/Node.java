@@ -1,10 +1,7 @@
 package mcts.tree;
 
-import mcts.montecarlo.State;
-
-import java.util.*;
-
 public class Node {
+    /*
     State state;
     Node parent;
     List<Node> childArray;
@@ -72,5 +69,7 @@ public class Node {
     public Node getChildWithMaxScore() {
         return this.childArray.stream().max(Comparator.comparing(c -> c.getState().getVisitCount())).get();
     }
+
+     */
 
 }
