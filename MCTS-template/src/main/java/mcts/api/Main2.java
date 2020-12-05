@@ -8,11 +8,11 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class Main {
+public class Main2 {
 
     private static String playerId = "1";
     private static String gameId = "1";
-    
+
     public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap, boolean amIFirst) throws JSONException {
 
         Map<ValuesXY, Field> fields = new HashMap<>();
@@ -180,8 +180,7 @@ public class Main {
                 System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                String s = HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
-                data = new JSONObject(s);
+                data = new JSONObject(HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
 
             }
         } catch (Exception e) {
