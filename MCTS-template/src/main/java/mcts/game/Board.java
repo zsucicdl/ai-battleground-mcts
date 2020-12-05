@@ -1,6 +1,7 @@
 package mcts.game;
 
 import java.util.*;
+import java.util.function.BiFunction;
 
 public class Board {
     private int turns;
@@ -163,15 +164,26 @@ public class Board {
             indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
             indexXYRoads.put(new ValuesXY(move.getIndex1(), move.getIndex2()), players[currentPlayerIndex].getPlayerId());
         } else if(move.getType().equals(MoveType.MOVE)){
-
+            if(indexXYRoads.get(new ValuesXY(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1())) != currentPlayer.getPlayerId()){
+                currentPlayer.getAvailableResources().compute(Resource.SHEEP, (key, value) -> value - 50);
+                currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 50);
+            }
+            currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
         } else if(move.getType().equals(MoveType.BUILD_ROAD)){
-
+            indexXYRoads.put(new ValuesXY(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1()), currentPlayer.getPlayerId());
+            currentPlayer.getAvailableResources().compute(Resource.WOOD, (key, value) -> value - 100);
+            currentPlayer.getAvailableResources().compute(Resource.CLAY, (key, value) -> value - 100);
         } else if(move.getType().equals(MoveType.BUILD_TOWN)){
-
+            currentCities.put(currentPlayer.getCurrentIntersection().getIndex(), new City(currentPlayer.getCurrentIntersection()));
+            currentPlayer.getAvailableResources().compute(Resource.SHEEP, (key, value) -> value - 100);
+            currentPlayer.getAvailableResources().compute(Resource.WOOD, (key, value) -> value - 100);
+            currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 100);
+            currentPlayer.getAvailableResources().compute(Resource.CLAY, (key, value) -> value - 100);
         } else if(move.getType().equals(MoveType.UPGRADE_TOWN)){
-
+            currentCities.get(move.getIndex1()).upgrade();
+            currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 200);
+            currentPlayer.getAvailableResources().compute(Resource.IRON, (key, value) -> value - 300);
         } else if(move.getType().equals(MoveType.EMPTY)){
-            return;
         }
     }
 
