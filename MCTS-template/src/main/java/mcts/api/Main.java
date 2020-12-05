@@ -147,10 +147,15 @@ public class Main {
                     Move move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
+
+                    myMove = myMove.replaceAll(" ", "%20");
+                    HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+
+                    myMove = "";
+
                     move = board.getRandomMove();
                     board.playMove(move);
-                    myMove += " " + move.toString();
-                    myMove = myMove;
+                    myMove += move.toString();
                     iteration += 2;
                 }else if(!amIFirst && iteration == 3){
                     String[] words = enemyAction.split(" ");
