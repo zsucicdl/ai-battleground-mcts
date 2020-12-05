@@ -83,9 +83,7 @@ public class Main {
 
                 // Player ID
                 int playerId = data.getInt("playerID");
-                if (iteration == 0) {
-
-                }
+                boolean amIFirst = true;
 
                 if(iteration == 0){
                     // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
@@ -100,7 +98,6 @@ public class Main {
                     // Lista sa susjedima intersectiona duljine 96, oblika [[1, 10], [0, 2], [1, 3, 12], ...]
                     JSONArray indexMap = result.getJSONArray("indexMap");
 
-                    boolean amIFirst;
                     if (action.equals("null")) {
                         amIFirst = true;
                     } else {
@@ -110,13 +107,12 @@ public class Main {
                 }
 
                 String myMove = "";
-                boolean iAmFirst = (first_player == playerId);
-                if(iAmFirst && iteration == 0){
+                if(amIFirst && iteration == 0){
                     Move myRandomMove = board.getRandomMove();
                     board.playMove(myRandomMove);
                     myMove += myRandomMove.toString();
                     iteration++;
-                } else if(iAmFirst && iteration == 1){
+                } else if(amIFirst && iteration == 1){
                     enemyAction = new JSONObject(action).getString("result");
                     String[] words = enemyAction.split(" ");
                     String move1 = words[0] + " " + words[1] + " " + words[2];
@@ -133,7 +129,7 @@ public class Main {
                     myMove += " " + move.toString();
                     myMove = myMove;
                     iteration += 2;
-                } else if(!iAmFirst && iteration == 0){
+                } else if(!amIFirst && iteration == 0){
                     enemyAction = new JSONObject(action).getString("result");
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
@@ -146,7 +142,7 @@ public class Main {
                     myMove += " " + move.toString();
                     myMove = myMove;
                     iteration += 2;
-                }else if(!iAmFirst && iteration == 3){
+                }else if(!amIFirst && iteration == 3){
                     enemyAction = new JSONObject(action).getString("result");
                     String[] words = enemyAction.split(" ");
                     String move1 = words[0] + " " + words[1] + " " + words[2];
