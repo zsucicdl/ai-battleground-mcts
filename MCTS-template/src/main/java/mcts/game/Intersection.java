@@ -46,11 +46,8 @@ public class Intersection {
     }
 
     public void addAdjacentIntersection(Intersection intersection){
-        if(adjacentIntersections.contains(intersection)){
-            return;
-        }
         this.adjacentIntersections.add(intersection);
-        intersection.addAdjacentIntersection(this);
+        intersection.getAdjacentIntersections().add(this);
     }
 
     public boolean isConnected(int playerId, HashMap<ValuesXY, Integer> indexXYRoads){
