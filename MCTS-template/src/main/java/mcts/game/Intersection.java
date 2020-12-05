@@ -51,20 +51,20 @@ public class Intersection {
         intersection.getAdjacentIntersections().add(this);
     }
 
-    public boolean isConnected(int playerId, HashMap<ValuesXY, Integer> indexXYRoads){
+    public boolean isConnected(int playerId, Board board){
         boolean isConnected = false;
         for(Intersection i : this.adjacentIntersections){
-            if(indexXYRoads.get(new ValuesXY(this.index, i.getIndex())) == playerId){
+            if(board.getRoadStatus(this.index, i.getIndex()) == playerId){
                 isConnected = true;
             }
         }
         return isConnected;
     }
 
-    public int numberOfRoads(int playerId, HashMap<ValuesXY, Integer> indexXYRoads){
+    public int numberOfRoads(int playerId, Board board){
         int counter = 0;
         for(Intersection i : this.adjacentIntersections){
-            if(indexXYRoads.get(new ValuesXY(this.index, i.getIndex())) == playerId){
+            if(board.getRoadStatus(this.index, i.getIndex()) == playerId){
                 counter++;
             }
         }

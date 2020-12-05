@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -71,21 +72,19 @@ public class Main {
             String pid = "1";//sc.next();
             JSONObject data = new JSONObject(HttpHelper.GET(host + "train/play?playerID=" + pid + "&gameID=1"));
             int iteration = 0;
-            int first_player = 0;
+            boolean amIFirst = true;
             Board board = null;
 
             while (data.getBoolean("success")) {
-                JSONObject result = data.getJSONObject("result");
-
-                // Action
-                String action = result.getString("action");
+                TimeUnit.SECONDS.sleep(1);
                 String enemyAction = "";
-
-                // Player ID
-                int playerId = data.getInt("playerID");
-                boolean amIFirst = true;
-
                 if(iteration == 0){
+                    JSONObject result = data.getJSONObject("result");
+                    // Action
+                    String action = result.getString("action");
+
+                    // Player ID
+                    int playerId = data.getInt("playerID");
                     // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
                     JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
 
@@ -104,7 +103,10 @@ public class Main {
                         amIFirst = false;
                     }
                     board = initGameState(intersectionCoordinates, mapTiles, indexMap, amIFirst);
+                } else{
+                    enemyAction = data.getString("result");
                 }
+
 
                 String myMove = "";
                 if(amIFirst && iteration == 0){
@@ -113,7 +115,6 @@ public class Main {
                     myMove += myRandomMove.toString();
                     iteration++;
                 } else if(amIFirst && iteration == 1){
-                    enemyAction = new JSONObject(action).getString("result");
                     String[] words = enemyAction.split(" ");
                     String move1 = words[0] + " " + words[1] + " " + words[2];
                     String move2 = words[3] + " " + words[4] + " " + words[5];
@@ -124,13 +125,15 @@ public class Main {
                     Move move = board.getRandomMove();
                     board.playMove(move);
                     myMove += move.toString();
+                    myMove = myMove.replaceAll(" ", "%20");
+                    HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+
+                    myMove = "";
                     move = board.getRandomMove();
                     board.playMove(move);
-                    myMove += " " + move.toString();
-                    myMove = myMove;
+                    myMove += move.toString();
                     iteration += 2;
                 } else if(!amIFirst && iteration == 0){
-                    enemyAction = new JSONObject(action).getString("result");
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 
@@ -143,7 +146,6 @@ public class Main {
                     myMove = myMove;
                     iteration += 2;
                 }else if(!amIFirst && iteration == 3){
-                    enemyAction = new JSONObject(action).getString("result");
                     String[] words = enemyAction.split(" ");
                     String move1 = words[0] + " " + words[1] + " " + words[2];
                     String move2 = words[3] + " " + words[4] + " " + words[5];
@@ -155,7 +157,6 @@ public class Main {
                     board.playMove(move);
                     myMove += move.toString();
                 } else {
-                    enemyAction = new JSONObject(action).getString("result");
                     board.playMove(Move.fromString(enemyAction));
                     iteration++;
 

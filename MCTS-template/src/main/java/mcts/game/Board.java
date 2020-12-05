@@ -103,19 +103,19 @@ public class Board {
             // MOVE & BUILD ROAD
             for(Intersection intersection : currentPlayer.getCurrentIntersection().getAdjacentIntersections()) {
                 // MOVE
-                if (indexXYRoads.get(new ValuesXY(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex())) == currentPlayer.getPlayerId()) {
+                if (getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex()) == currentPlayer.getPlayerId()) {
                     moves.add(new Move(MoveType.MOVE, intersection.getIndex()));
                 } else if (currentPlayer.getAvailableResources().get(Resource.SHEEP) >= 50 && currentPlayer.getAvailableResources().get(Resource.WHEAT) >= 50) {
                     moves.add(new Move(MoveType.MOVE, intersection.getIndex()));
                 }
 
                 // BUILD ROAD
-                int connection = indexXYRoads.get(new ValuesXY(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex()));
+                int connection = getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex());
                 if (connection != 0) {
                     continue;
                 }
                 boolean isConnected = false;
-                if (currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), indexXYRoads) || intersection.isConnected(currentPlayer.getPlayerId(), indexXYRoads)) {
+                if (currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), this) || intersection.isConnected(currentPlayer.getPlayerId(), this)) {
                     isConnected = true;
                 }
                 if (currentCities.get(currentPlayer.getCurrentIntersection().getIndex()) != null || currentCities.get(intersection.getIndex()) != null) {
@@ -123,8 +123,8 @@ public class Board {
                 }
                 if (!isConnected || opponentCities.containsKey(currentPlayer.getCurrentIntersection().getIndex()) ||
                         opponentCities.containsKey(intersection.getIndex()) ||
-                        currentPlayer.getCurrentIntersection().numberOfRoads(opponentPlayer.getPlayerId(), indexXYRoads) == 2 ||
-                        intersection.numberOfRoads(opponentPlayer.getPlayerId(), indexXYRoads) == 2) {
+                        currentPlayer.getCurrentIntersection().numberOfRoads(opponentPlayer.getPlayerId(), this) == 2 ||
+                        intersection.numberOfRoads(opponentPlayer.getPlayerId(), this) == 2) {
                     continue;
                 }
                 if (currentPlayer.getAvailableResources().get(Resource.WOOD) >= 100 && currentPlayer.getAvailableResources().get(Resource.CLAY) >= 100) {
@@ -133,9 +133,9 @@ public class Board {
             }
 
             // BUILD TOWN
-            if(currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), indexXYRoads) &&
+            if(currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), this) &&
                     !currentPlayer.getCurrentIntersection().adjacentToCity(indexCities) &&
-                    currentPlayer.getCurrentIntersection().numberOfRoads(opponentPlayer.getPlayerId(), indexXYRoads) != 2 &&
+                    currentPlayer.getCurrentIntersection().numberOfRoads(opponentPlayer.getPlayerId(), this) != 2 &&
                     currentPlayer.getAvailableResources().get(Resource.SHEEP) >= 100 &&
                     currentPlayer.getAvailableResources().get(Resource.WOOD) >= 100 &&
                     currentPlayer.getAvailableResources().get(Resource.WHEAT) >= 100 &&
@@ -162,10 +162,11 @@ public class Board {
         Builder opponentPlayer = players[1 - currentPlayerIndex];
         HashMap<Integer, City> currentCities = indexCities[currentPlayerIndex];
         HashMap<Integer, City> opponentCities = indexCities[1 - currentPlayerIndex];
-        turns++;
 
-        gainResouces(0);
-        gainResouces(1);
+        if(turns >= 4){
+            gainResouces(0);
+            gainResouces(1);
+        }
 
         if(move.getType().equals(MoveType.INITIAL)){
             if(turns == 0 || turns == 1){
@@ -174,7 +175,7 @@ public class Board {
             indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
             indexXYRoads.put(new ValuesXY(move.getIndex1(), move.getIndex2()), players[currentPlayerIndex].getPlayerId());
         } else if(move.getType().equals(MoveType.MOVE)){
-            if(indexXYRoads.get(new ValuesXY(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1())) != currentPlayer.getPlayerId()){
+            if(getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1()) != currentPlayer.getPlayerId()){
                 currentPlayer.getAvailableResources().compute(Resource.SHEEP, (key, value) -> value - 50);
                 currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 50);
             }
@@ -195,6 +196,7 @@ public class Board {
             currentPlayer.getAvailableResources().compute(Resource.IRON, (key, value) -> value - 300);
         } else if(move.getType().equals(MoveType.EMPTY)){
         }
+        turns++;
     }
 
     private void gainResouces(int playerIndex) {
@@ -203,7 +205,9 @@ public class Board {
 
         for(City city : currentCities.values()){
             for(Field field : city.getIntersection().getAdjacentFields()){
-                currentPlayer.getAvailableResources().compute(field.getResource(), (key, value) -> value + field.getWeight() * city.getLevel());
+                if(field.getResource() != Resource.WATER && field.getResource() != Resource.DUST){
+                    currentPlayer.getAvailableResources().compute(field.getResource(), (key, value) -> value + field.getWeight() * city.getLevel());
+                }
             }
         }
     }
@@ -219,5 +223,12 @@ public class Board {
             return true;
         }
         return false;
+    }
+
+    public int getRoadStatus(int index1, int index2){
+        if(!indexXYRoads.containsKey(new ValuesXY(index1, index2))){
+            return 0;
+        }
+        return indexXYRoads.get(new ValuesXY(index1, index2));
     }
 }
