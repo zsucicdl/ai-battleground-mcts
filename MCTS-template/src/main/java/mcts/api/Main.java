@@ -70,7 +70,7 @@ public class Main {
         try {
             // JOIN
             Scanner sc = new Scanner(System.in);
-            String pid = sc.nextLine();
+            String pid = "1";
             JSONObject data = new JSONObject(HttpHelper.GET(host + "game/play?playerID=" + pid + "&gameID=1"));
             int iteration = 0;
             boolean amIFirst = true;

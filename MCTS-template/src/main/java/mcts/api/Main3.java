@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class Main2 {
+public class Main3 {
 
     private static String playerId = "1";
     private static String gameId = "1";
@@ -70,8 +70,8 @@ public class Main2 {
         try {
             // JOIN
             Scanner sc = new Scanner(System.in);
-            String pid = "2";
-            JSONObject data = new JSONObject(HttpHelper.GET(host + "game/play?playerID=" + pid + "&gameID=1"));
+            String pid = "1";
+            JSONObject data = new JSONObject(HttpHelper.GET(host + "train/play?playerID=" + pid + "&gameID=1"));
             int iteration = 0;
             boolean amIFirst = true;
             Board board = null;
@@ -133,7 +133,7 @@ public class Main2 {
                     board.playMove(move);
                     myMove += move.toString();
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
                     move = board.getRandomMove();
@@ -149,7 +149,7 @@ public class Main2 {
                     myMove += move.toString();
 
                     myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
+                    HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
 
                     myMove = "";
 
@@ -180,7 +180,7 @@ public class Main2 {
                 System.out.println(myMove);
                 myMove = myMove.replaceAll(" ", "%20");
                 // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                data = new JSONObject(HttpHelper.GET(host + "game/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
+                data = new JSONObject(HttpHelper.GET(host + "train/doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
 
             }
         } catch (Exception e) {
