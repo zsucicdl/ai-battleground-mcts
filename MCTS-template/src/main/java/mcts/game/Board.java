@@ -157,8 +157,14 @@ public class Board {
     public void playMove(Move move){
         int currentPlayerIndex = getCurrentPlayerIndex();
         Builder currentPlayer = players[currentPlayerIndex];
+        Builder opponentPlayer = players[1 - currentPlayerIndex];
         HashMap<Integer, City> currentCities = indexCities[currentPlayerIndex];
+        HashMap<Integer, City> opponentCities = indexCities[1 - currentPlayerIndex];
         turns++;
+
+        gainResouces(0);
+        gainResouces(1);
+
         if(move.getType().equals(MoveType.INITIAL)){
             if(turns == 0 || turns == 1){
                 currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
@@ -186,6 +192,17 @@ public class Board {
             currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 200);
             currentPlayer.getAvailableResources().compute(Resource.IRON, (key, value) -> value - 300);
         } else if(move.getType().equals(MoveType.EMPTY)){
+        }
+    }
+
+    private void gainResouces(int playerIndex) {
+        Builder currentPlayer = players[playerIndex];
+        HashMap<Integer, City> currentCities = indexCities[playerIndex];
+
+        for(City city : currentCities.values()){
+            for(Field field : city.getIntersection().getAdjacentFields()){
+                currentPlayer.getAvailableResources().compute(field.getResource(), (key, value) -> value + field.getWeight() * city.getLevel());
+            }
         }
     }
 

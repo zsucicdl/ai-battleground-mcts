@@ -1,7 +1,6 @@
 package mcts.montecarlo;
 
 public class MonteCarloTreeSearch {
-/*
     private static final int SIMULATION_DEPTH = 10;
 
     private int opponent;
@@ -103,5 +102,4 @@ public class MonteCarloTreeSearch {
         }
     }
 
- */
 }

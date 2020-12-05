@@ -1,7 +1,7 @@
 package mcts.montecarlo;
 
 public class State {
-    /*
+
     private Board board;
     private int playerId;
     private int visitCount;
@@ -92,5 +92,5 @@ public class State {
         this.playerNo = 3 - this.playerNo;
     }
 
-     */
+
 }
