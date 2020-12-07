@@ -18,7 +18,6 @@ public class Main {
     public static void main(String[] args) throws JSONException {
         initPlayer(1);
         initPlayer(2);
-
     }
 
     private static void initPlayer(int playerId) throws JSONException {

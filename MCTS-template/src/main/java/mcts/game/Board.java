@@ -5,10 +5,8 @@ import java.util.*;
 public class Board {
     private static final Random RANDOM = new Random();
     private int turns;
-
     private Builder[] players;
     private HashMap<Integer, City>[] indexCities;
-
     private HashMap<Integer, Intersection> indexIntersections;
     private HashMap<ValuesXY, Integer> indexXYRoads; // 0 - nema ceste; 1 - cesta od igrača 1; 2 - cesta od igrača 2
 
@@ -114,7 +112,7 @@ public class Board {
         // check initial move
         if(turns < 4) {
             for(Intersection intersection : indexIntersections.values()){
-                if(currentCities.containsKey(intersection.getIndex()) || opponentCities.containsKey(intersection.getIndex())){
+                if(intersection.adjacentToCity(indexCities) ||  currentCities.containsKey(intersection.getIndex()) || opponentCities.containsKey(intersection.getIndex())){
                     continue;
                 }
                 for(Intersection otherIntersection : intersection.getAdjacentIntersections()){
@@ -140,10 +138,10 @@ public class Board {
                     continue;
                 }
                 boolean isConnected = false;
-                if (currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), this) || intersection.isConnected(currentPlayer.getPlayerId(), this)) {
-                    isConnected = true;
-                }
-                if (currentCities.get(currentPlayer.getCurrentIntersection().getIndex()) != null || currentCities.get(intersection.getIndex()) != null) {
+                if (currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), this) ||
+                        intersection.isConnected(currentPlayer.getPlayerId(), this) ||
+                        currentCities.get(currentPlayer.getCurrentIntersection().getIndex()) != null ||
+                        currentCities.get(intersection.getIndex()) != null) {
                     isConnected = true;
                 }
                 if (!isConnected || opponentCities.containsKey(currentPlayer.getCurrentIntersection().getIndex()) ||
@@ -186,13 +184,11 @@ public class Board {
     public void playMove(Move move){
         int currentPlayerIndex = getCurrentPlayerIndex();
         Builder currentPlayer = players[currentPlayerIndex];
-        Builder opponentPlayer = players[1 - currentPlayerIndex];
         HashMap<Integer, City> currentCities = indexCities[currentPlayerIndex];
-        HashMap<Integer, City> opponentCities = indexCities[1 - currentPlayerIndex];
 
         if(turns >= 4){
-            gainResouces(0);
-            gainResouces(1);
+            gainResources(0);
+            gainResources(1);
         }
 
         if(move.getType().equals(MoveType.INITIAL)){
@@ -226,7 +222,7 @@ public class Board {
         turns++;
     }
 
-    private void gainResouces(int playerIndex) {
+    private void gainResources(int playerIndex) {
         Builder currentPlayer = players[playerIndex];
         HashMap<Integer, City> currentCities = indexCities[playerIndex];
 
@@ -246,10 +242,7 @@ public class Board {
     }
 
     public boolean isRunning(){
-        if(players[0].getPoints() < 16 && players[1].getPoints() < 16){
-            return true;
-        }
-        return false;
+        return players[0].getPoints() < 16 && players[1].getPoints() < 16;
     }
 
     public int getRoadStatus(int index1, int index2){
@@ -262,10 +255,5 @@ public class Board {
     public void buildRoad(int index1, int index2, int playerId){
         indexXYRoads.put(new ValuesXY(index1, index2), playerId);
         indexXYRoads.put(new ValuesXY(index2, index1), playerId);
-    }
-
-    public void addResource(Builder currentPlayer, Resource resource, int value){
-        int currentValue = currentPlayer.getAvailableResources().get(resource);
-        currentPlayer.getAvailableResources().put(resource, currentValue + value);
     }
 }
