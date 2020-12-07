@@ -1,106 +1,113 @@
 package mcts.montecarlo;
 
 import mcts.game.*;
+import mcts.tree.Node;
+import mcts.tree.Tree;
 
 import java.util.HashMap;
 import java.util.List;
 
 public class MonteCarloTreeSearch {
-    private static final int SIMULATION_DEPTH = 5;
+    private static final int SIMULATION_DEPTH = 10;
+
+    private int opponent;
+    private int playerNo;
 
     public MonteCarloTreeSearch() {
     }
 
-    int getPlayerIndex(int iteration){
-        int myPlayerIndex;
-        if(iteration == 0 || iteration == 3){
-            myPlayerIndex = 0;
-        } else if (iteration == 1 || iteration == 5){
-            myPlayerIndex = 1;
-        } else {
-            myPlayerIndex = iteration % 2;
-        }
-        return myPlayerIndex;
-    }
-
-    public Move findNextMove(Board board, int iteration) {
+    public Move findNextMove(Board board) {
         long start = System.currentTimeMillis();
-        long end = start + 4000; // TODO set time limit
-        if(iteration < 7) {
-            end = start + 2000;
+        long end = start + 3000; // TODO set time limit
+
+        Tree tree = new Tree();
+        Node rootNode = tree.getRoot();
+        rootNode.getState().setBoard(board);
+
+        while (System.currentTimeMillis() < end) {
+            // Phase 1 - Selection
+            Node promisingNode = selectPromisingNode(rootNode);
+            // Phase 2 - Expansion
+            if (promisingNode.getState().getBoard().isRunning())
+                expandNode(promisingNode);
+
+            // Phase 3 - Simulation
+            Node nodeToExplore = promisingNode;
+            if (promisingNode.getChildArray().size() > 0) {
+                nodeToExplore = promisingNode.getRandomChildNode();
+            }
+            int score = simulateRandomPlayout(nodeToExplore);
+            // Phase 4 - Update
+            backPropogation(nodeToExplore, score);
         }
 
-        List<Move> logicalMoves = board.getLogicalMoves();
-        List<Move> possibleMoves;
-        if(logicalMoves.size() > 0){
-            possibleMoves = logicalMoves;
-        } else{
-            possibleMoves = board.getLegalMoves(iteration);
-        }
-        int maxScore = Integer.MIN_VALUE;
-        int maxIndex = 0;
-        while(System.currentTimeMillis() < end) {
-            int[] scores = new int[possibleMoves.size()];
-            Board[] boards = new Board[possibleMoves.size()];
-            for(int i = 0; i < possibleMoves.size(); i++){
-                int counter = iteration;
-                int myPlayerIndex = getPlayerIndex(counter);
-                boards[i] = board.copy();
-                if(myPlayerIndex == board.getCurrentPlayerIndex(counter)){
-                    scores[i] += scoreFunction(boards[i], possibleMoves.get(i)) / (counter + 1);
-                }
-                boards[i].playMove(possibleMoves.get(i));
-                counter++;
-                // now simulate
-                for(int depth = 0; depth < SIMULATION_DEPTH; depth++){
-                    Move randomMove = boards[i].getRandomMove();
-                    if(myPlayerIndex == board.getCurrentPlayerIndex(counter)){
-                        scores[i] += scoreFunction(boards[i], randomMove) / (counter + 1);
-                    }
-                    boards[i].playMove(randomMove);
-                    counter++;
-                }
-                if(scores[i] > maxIndex){
-                    maxScore = scores[i];
-                    maxIndex = i;
-                }
-            }
-        }
-        /*
-        int maxScore = Integer.MIN_VALUE;
-        int maxIndex = 0;
-        for (int i = 0; i <scores.length; i++){
-            System.out.println("possible moves: " + scores.length);
-            if(scores.length < 5){
-                for(int score : scores){
-                    System.out.println("scores: " + score);
-                }
-            }
-            if(scores[i] > maxScore){
-                maxScore = scores[i];
-                maxIndex = i;
-            }
-        }*/
-        System.out.println("Possible Moves");
-        possibleMoves.forEach(p -> System.out.println(p.toString()));
-        return possibleMoves.get(maxIndex);
+        Node winnerNode = rootNode.getChildWithMaxVisits();
+        return winnerNode.getState().getInitialMove();
     }
 
+    private Node selectPromisingNode(Node rootNode) {
+        Node node = rootNode;
+        while (node != null && node.getChildArray().size() != 0) {
+            node = UCT.findBestNodeWithUCT(node);
+        }
+        return node;
+    }
+
+    private void expandNode(Node node) {
+        List<State> possibleStates = node.getState().getAllPossibleStates();
+        possibleStates.forEach(state -> {
+            Node newNode = new Node(state);
+            newNode.setParent(node);
+            node.getChildArray().add(newNode);
+        });
+    }
+
+    private int simulateRandomPlayout(Node node) {
+        Node tempNode = node.copy();
+        State tempState = tempNode.getState();
+        int score = 0;
+
+        // TODO implement simulation
+        for(int i = 0; i < SIMULATION_DEPTH; i++) {
+            Move randomMove = tempState.getBoard().getRandomMove();
+            tempState.getBoard().playMove(randomMove);
+            int tempScore = scoreFunction(tempState.getBoard(), randomMove);
+            score += tempScore;
+            if(!tempState.getBoard().isRunning()){
+                break;
+            }
+        }
+        return score;
+    }
 
     private int scoreFunction(Board board, Move randomMove) {
         int score = 0;
         if(randomMove.getType() == MoveType.INITIAL){
             score += initialMoveScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.BUILD_TOWN){
-            score += 10;
+            score += 1000;
+            score += buildTownScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.UPGRADE_TOWN){
-            score += 8;
+            score += 800;
+            score += buildTownScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.BUILD_ROAD){
-            score += 3;
-        }else if(randomMove.getType() == MoveType.MOVE){
+            score += buildRoadScoreFunction(board, randomMove);
+            score += 300;
+        } else if(randomMove.getType() == MoveType.MOVE){
             score += 1;
         }
+        score += board.getCurrentPlayer().getNoOfResources() / 100;
         return score;
+    }
+
+    private int buildRoadScoreFunction(Board board, Move randomMove) {
+        int noOfCities = board.getIndexCities()[board.getCurrentPlayerIndex()].size();
+        int noOfRoads = 0;
+        for (Integer i : board.getIndexXYRoads().values()) {
+            if(i == board.getCurrentPlayerIndex())
+                noOfRoads++;
+        }
+        return noOfCities * (25 - noOfRoads);
     }
 
     private int buildTownScoreFunction(Board board, Move randomMove) {
@@ -117,16 +124,16 @@ public class MonteCarloTreeSearch {
             for(Field f : board.getIndexIntersections().get(randomMove.getIndex1()).getAdjacentFields()){
                 switch (f.getResource()){
                     case WOOD:
-                        score += f.getWeight() * 7;
+                        score += f.getWeight() * 4;
                         break;
                     case CLAY:
-                        score += f.getWeight() * 6;
+                        score += f.getWeight() * 4;
                         break;
                     case WHEAT:
-                        score += f.getWeight() * 4;
+                        score += f.getWeight() * 3;
                         break;
                     case SHEEP:
-                        score += f.getWeight() * 4;
+                        score += f.getWeight() * 3;
                 }
             }
         } else {
@@ -157,10 +164,20 @@ public class MonteCarloTreeSearch {
                         score += f.getWeight() * 3;
                 }
             }
+            System.out.println("NUMBER OF FLAAAAGS: " + flags.keySet().size());
             if(flags.keySet().size() < 4){
-                score = -100000;
+                score = 0;
             }
         }
-        return score *= 10;
+        return score;
+    }
+
+    private void backPropogation(Node nodeToExplore, int score) {
+        Node tempNode = nodeToExplore;
+        while (tempNode != null) {
+            tempNode.getState().incrementVisit();
+            tempNode.getState().addScore(score);
+            tempNode = tempNode.getParent();
+        }
     }
 }

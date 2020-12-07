@@ -1,6 +1,7 @@
 package mcts.api;
 
 import mcts.game.*;
+import mcts.montecarlo.MonteCarloTreeSearch;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,8 +10,93 @@ import java.util.*;
 
 public class Main {
 
-    private static String playerId = "1";
-    private static String gameId = "1";
+    private static final String GAME_ID = "1";
+    private static final String URL = "http://localhost:9080/";
+
+    private static final MonteCarloTreeSearch MCTS = new MonteCarloTreeSearch();
+
+    public static void main(String[] args) throws JSONException {
+        initPlayer(1);
+        initPlayer(2);
+
+    }
+
+    private static void initPlayer(int playerId) throws JSONException {
+        String stringJson = HttpHelper.GET(URL + "game/play?playerID=" + playerId + "&gameID=" + GAME_ID);
+        JSONObject data = new JSONObject(stringJson);
+
+        int iteration = 0;
+        String enemyAction;
+        boolean amIFirst = true;
+        Board board = null;
+        while (data.getBoolean("success")) {
+            if(iteration == 0){
+                JSONObject result = data.getJSONObject("result");
+                JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
+                JSONObject map = result.getJSONObject("map");
+                JSONArray mapTiles = map.getJSONArray("tiles");
+                JSONArray indexMap = result.getJSONArray("indexMap");
+
+                enemyAction = result.getString("action");
+                amIFirst = enemyAction.equals("null");
+                board = initGameState(intersectionCoordinates, mapTiles, indexMap, amIFirst);
+            } else{
+                enemyAction = data.getString("result");
+            }
+
+            if(amIFirst && iteration == 0){
+                // MOJA POČETNA INICIJALIZACIJA
+                stringJson = doMyTurn(board, playerId);
+                iteration++;
+            } else if(amIFirst && iteration == 1){
+                // PROTIVNIČKE DVIJE INICIJALIZACIJE
+                String[] words = enemyAction.split(" ");
+                String move1 = words[0] + " " + words[1] + " " + words[2];
+                String move2 = words[3] + " " + words[4] + " " + words[5];
+                board.playMove(Move.fromString(move1));
+                iteration++;
+                board.playMove(Move.fromString(move2));
+                iteration++;
+                // MOJA ZADNJA INICIJALIZACIJA I PRVI POTEZ
+                doMyTurn(board, playerId);
+                iteration++;
+                stringJson = doMyTurn(board, playerId);
+                iteration++;
+            } else if(!amIFirst && iteration == 0){
+                board.playMove(Move.fromString(enemyAction));
+                iteration++;
+                doMyTurn(board, playerId);
+                iteration++;
+                stringJson = doMyTurn(board, playerId);
+                iteration++;
+            }else if(!amIFirst && iteration == 3){
+                // PROTIVNIČKA ZADNJA INICIJALIZACIJA I PRVI POTEZ
+                String[] words = enemyAction.split(" ");
+                String move1 = words[0] + " " + words[1] + " " + words[2];
+                String move2 = words[3] + " " + words[4] + " " + words[5];
+                board.playMove(Move.fromString(move1));
+                board.playMove(Move.fromString(move2));
+                iteration += 2;
+
+                //MOJ PRVI POTEZ
+                stringJson = doMyTurn(board, playerId);
+                iteration++;
+            } else {
+                board.playMove(Move.fromString(enemyAction));
+                iteration++;
+                stringJson = doMyTurn(board, playerId);
+                iteration++;
+            }
+            data = new JSONObject(stringJson);
+        }
+    }
+
+    private static String doMyTurn(Board board, int playerId){
+        Move move = MCTS.findNextMove(board);
+        board.playMove(move);
+        String moveString = move.toString().replaceAll(" ", "%20");
+        return HttpHelper.GET(URL + "doAction?playerID=" + playerId + "&gameID=" + GAME_ID + "&action=" + moveString);
+    }
     
     public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap, boolean amIFirst) throws JSONException {
 
@@ -28,7 +114,7 @@ public class Main {
                     Field field = new Field(Resource.valueOf(resource), weight);
                     ValuesXY valuesXY = new ValuesXY(x, y);
                     fields.put(valuesXY, field);
-                } catch (ClassCastException e) {
+                } catch (ClassCastException ignored) {
                 }
             }
         }
@@ -57,135 +143,7 @@ public class Main {
             }
             intersectionToIntersection.add(temp);
         }
-
         // PREDAJ PODATKE
-        Board board = Board.initBoard(intersectionToIntersection, intersectionToField, amIFirst);
-        return board;
-    }
-
-    public static void main(String[] args) {
-
-        String host = "http://localhost:9080/";
-        //String host = "http://157.230.126.62:9080/";
-        try {
-            // JOIN
-            Scanner sc = new Scanner(System.in);
-            String pid = "1";
-            JSONObject data = new JSONObject(HttpHelper.GET(host + "game/play?playerID=" + pid + "&gameID=1"));
-            int iteration = 0;
-            boolean amIFirst = true;
-            Board board = null;
-
-            while (data.getBoolean("success")) {
-                String enemyAction = "";
-                if(iteration == 0){
-                    JSONObject result = data.getJSONObject("result");
-                    // Action
-                    String action = result.getString("action");
-                    enemyAction = action;
-
-                    // Player ID
-                    int playerId = data.getInt("playerID");
-                    // Lista sa poljima koji okruzuju intersectione duljine 96, oblika [[{"x":0,"y":0}, {"x":0,"y":1}, {"x":1,"y":1}], ...]
-                    JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
-
-                    JSONObject map = result.getJSONObject("map");
-                    int mapWidth = map.getInt("width");
-                    int mapHeight = map.getInt("height");
-                    // Lista sa podacima o poljima (resourceType, resourceWeight, x, y) u arrayu 9x9
-                    JSONArray mapTiles = map.getJSONArray("tiles");
-
-                    // Lista sa susjedima intersectiona duljine 96, oblika [[1, 10], [0, 2], [1, 3, 12], ...]
-                    JSONArray indexMap = result.getJSONArray("indexMap");
-
-                    if (action.equals("null")) {
-                        amIFirst = true;
-                    } else {
-                        amIFirst = false;
-                    }
-                    board = initGameState(intersectionCoordinates, mapTiles, indexMap, amIFirst);
-                } else{
-                    enemyAction = data.getString("result");
-                }
-                String myMove = "";
-                if(amIFirst && iteration == 0){
-                    Move myRandomMove = board.getRandomMove();
-                    board.playMove(myRandomMove);
-                    myMove += myRandomMove.toString();
-                    iteration++;
-                } else if(amIFirst && iteration == 1){
-                    String[] words = enemyAction.split(" ");
-                    String move1 = words[0] + " " + words[1] + " " + words[2];
-                    String move2 = words[3] + " " + words[4] + " " + words[5];
-                    board.playMove(Move.fromString(move1));
-                    board.playMove(Move.fromString(move2));
-                    iteration += 2;
-
-                    Move move = board.getRandomMove();
-                    board.playMove(move);
-                    myMove += move.toString();
-                    myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
-
-                    myMove = "";
-                    move = board.getRandomMove();
-                    board.playMove(move);
-                    myMove += move.toString();
-                    iteration += 2;
-                } else if(!amIFirst && iteration == 0){
-                    board.playMove(Move.fromString(enemyAction));
-                    iteration++;
-
-                    Move move = board.getRandomMove();
-                    board.playMove(move);
-                    myMove += move.toString();
-
-                    myMove = myMove.replaceAll(" ", "%20");
-                    HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove);
-
-                    myMove = "";
-                    move = board.getRandomMove();
-                    board.playMove(move);
-                    myMove += move.toString();
-                    iteration += 2;
-                }else if(!amIFirst && iteration == 3){
-                    String[] words = enemyAction.split(" ");
-                    String move1 = words[0] + " " + words[1] + " " + words[2];
-                    String move2 = "";
-                    for (String s : words) {
-                        move2 += s + " ";
-                    }
-                    move2 = move2.strip();
-                    board.playMove(Move.fromString(move1));
-                    board.playMove(Move.fromString(move2));
-                    iteration += 2;
-
-                    Move move = board.getRandomMove();
-                    board.playMove(move);
-                    myMove += move.toString();
-                } else {
-
-                    board.playMove(Move.fromString(enemyAction));
-                    iteration++;
-
-                    List<Move> moves = board.getLegalMoves(board.getTurns());
-                    System.out.println("Possible moves: " + moves.size());
-                    if(moves.size() <= 5){
-                        moves.forEach(m -> System.out.println(m.toString()));
-                    }
-                    Move move = board.getRandomMove();
-                    System.out.println("MyMove: " + move.toString());
-                    board.playMove(move);
-                    myMove += move.toString();
-                    iteration++;
-                }
-                myMove = myMove.replaceAll(" ", "%20");
-                // ODIGRAJ POTEZ I DOHVATI POTEZ PROTIVNIKA
-                data = new JSONObject(HttpHelper.GET(host + "doAction?playerID=" + pid + "&gameID=1&action=" + myMove));
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        return Board.initBoard(intersectionToIntersection, intersectionToField, amIFirst);
     }
 }
