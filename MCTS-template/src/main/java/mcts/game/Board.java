@@ -213,10 +213,12 @@ public class Board {
             currentPlayer.getAvailableResources().compute(Resource.WOOD, (key, value) -> value - 100);
             currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 100);
             currentPlayer.getAvailableResources().compute(Resource.CLAY, (key, value) -> value - 100);
+            currentPlayer.gainPoint();
         } else if(move.getType().equals(MoveType.UPGRADE_TOWN)){
             currentCities.get(move.getIndex1()).upgrade();
             currentPlayer.getAvailableResources().compute(Resource.WHEAT, (key, value) -> value - 200);
             currentPlayer.getAvailableResources().compute(Resource.IRON, (key, value) -> value - 300);
+            currentPlayer.gainPoint();
         } else if(move.getType().equals(MoveType.EMPTY)){
         }
         turns++;

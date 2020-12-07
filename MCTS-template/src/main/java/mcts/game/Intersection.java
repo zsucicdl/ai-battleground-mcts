@@ -13,11 +13,6 @@ public class Intersection {
         adjacentIntersections = new HashSet<>();
     }
 
-    public Intersection(List<Field> adjacentFields, Set<Intersection> adjacentIntersections) {
-        this.adjacentFields = adjacentFields;
-        this.adjacentIntersections = adjacentIntersections;
-    }
-
     public int getIndex() {
         return index;
     }

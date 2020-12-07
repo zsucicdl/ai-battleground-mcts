@@ -25,7 +25,6 @@ public class Builder {
         this.points = points;
     }
 
-
     public int getPlayerId() {
         return playerId;
     }
@@ -58,6 +57,10 @@ public class Builder {
         this.points = points;
     }
 
+    public void gainPoint() {
+        points++;
+    }
+
     public Builder copy(){
         return new Builder(playerId, currentIntersection, availableResources, points);
     }
@@ -69,4 +72,5 @@ public class Builder {
         }
         return noOfRes;
     }
+
 }
