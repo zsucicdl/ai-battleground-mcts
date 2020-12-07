@@ -10,15 +10,13 @@ import java.util.List;
 public class MonteCarloTreeSearch {
     private static final int SIMULATION_DEPTH = 10;
 
-    private int opponent;
-    private int playerNo;
-
     public MonteCarloTreeSearch() {
     }
 
     public Move findNextMove(Board board) {
         long start = System.currentTimeMillis();
         long end = start + 3000; // TODO set time limit
+        int myPlayerId = board.getCurrentPlayerIndex();
 
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
@@ -36,7 +34,7 @@ public class MonteCarloTreeSearch {
             if (promisingNode.getChildArray().size() > 0) {
                 nodeToExplore = promisingNode.getRandomChildNode();
             }
-            int score = simulateRandomPlayout(nodeToExplore);
+            int score = simulateRandomPlayout(nodeToExplore, myPlayerId);
             // Phase 4 - Update
             backPropogation(nodeToExplore, score);
         }
@@ -55,25 +53,27 @@ public class MonteCarloTreeSearch {
 
     private void expandNode(Node node) {
         List<State> possibleStates = node.getState().getAllPossibleStates();
-        possibleStates.forEach(state -> {
+        for (State state : possibleStates) {
             Node newNode = new Node(state);
             newNode.setParent(node);
             node.getChildArray().add(newNode);
-        });
+        }
     }
 
-    private int simulateRandomPlayout(Node node) {
+    private int simulateRandomPlayout(Node node, int myPlayerId) {
         Node tempNode = node.copy();
-        State tempState = tempNode.getState();
+        Board tempBoard = tempNode.getState().getBoard();
         int score = 0;
 
         // TODO implement simulation
         for(int i = 0; i < SIMULATION_DEPTH; i++) {
-            Move randomMove = tempState.getBoard().getRandomMove();
-            tempState.getBoard().playMove(randomMove);
-            int tempScore = scoreFunction(tempState.getBoard(), randomMove);
-            score += tempScore;
-            if(!tempState.getBoard().isRunning()){
+            Move randomMove = tempBoard.getRandomMove();
+            int currentPlayerId = tempBoard.getCurrentPlayerIndex();
+            tempBoard.playMove(randomMove);
+            if(currentPlayerId == myPlayerId){
+                score += scoreFunction(tempBoard, randomMove);
+            }
+            if(!tempBoard.isRunning()){
                 break;
             }
         }
@@ -85,14 +85,13 @@ public class MonteCarloTreeSearch {
         if(randomMove.getType() == MoveType.INITIAL){
             score += initialMoveScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.BUILD_TOWN){
-            score += 1000;
+            score += 100;
             score += buildTownScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.UPGRADE_TOWN){
-            score += 800;
+            score += 80;
             score += buildTownScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.BUILD_ROAD){
-            score += buildRoadScoreFunction(board, randomMove);
-            score += 300;
+            score += 3;
         } else if(randomMove.getType() == MoveType.MOVE){
             score += 1;
         }
@@ -124,14 +123,10 @@ public class MonteCarloTreeSearch {
             for(Field f : board.getIndexIntersections().get(randomMove.getIndex1()).getAdjacentFields()){
                 switch (f.getResource()){
                     case WOOD:
-                        score += f.getWeight() * 4;
-                        break;
                     case CLAY:
                         score += f.getWeight() * 4;
                         break;
                     case WHEAT:
-                        score += f.getWeight() * 3;
-                        break;
                     case SHEEP:
                         score += f.getWeight() * 3;
                 }
@@ -164,9 +159,8 @@ public class MonteCarloTreeSearch {
                         score += f.getWeight() * 3;
                 }
             }
-            System.out.println("NUMBER OF FLAAAAGS: " + flags.keySet().size());
             if(flags.keySet().size() < 4){
-                score = 0;
+                score = Integer.MIN_VALUE;
             }
         }
         return score;

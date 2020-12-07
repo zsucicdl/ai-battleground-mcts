@@ -61,11 +61,11 @@ public class State {
     public List<State> getAllPossibleStates() {
         List<State> possibleStates = new ArrayList<>();
         List<Move> legalMoves = this.board.getLegalMoves();
-        legalMoves.forEach(move -> {
+        for (Move move : legalMoves) {
             State newState = new State(this.board, move);
             newState.getBoard().playMove(move);
             possibleStates.add(newState);
-        });
+        }
         return possibleStates;
     }
 
