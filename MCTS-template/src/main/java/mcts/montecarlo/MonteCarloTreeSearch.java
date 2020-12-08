@@ -22,7 +22,7 @@ public class MonteCarloTreeSearch {
 
     public Move findNextMove(Board board) throws InterruptedException {
         long start = System.currentTimeMillis();
-        long end = start + 200; // TODO set time limit
+        long end = start + 1500; // TODO set time limit
         int myPlayerId = board.getCurrentPlayerIndex();
 
         if(board.getTurns() < 4){
@@ -76,20 +76,20 @@ public class MonteCarloTreeSearch {
     private double simulateRandomPlayout(Node node, int myPlayerId) {
         Node tempNode = node.copy();
         Board tempBoard = tempNode.getState().getBoard();
-        double score = scoreFunction(tempBoard, tempNode.getState().getInitialMove());
+        double score = scoreFunction(tempBoard, myPlayerId);
 
         for(int i = 1; i <= SIMULATION_DEPTH; i++) {
             Move randomMove = tempBoard.getRandomMove();
             int currentPlayerId = tempBoard.getCurrentPlayerIndex();
             tempBoard.playMove(randomMove);
             if(currentPlayerId == myPlayerId){
-                score += scoreFunction(tempBoard, randomMove) * Math.pow(COEF, i);
+                score += scoreFunction(tempBoard, myPlayerId);
             }
             if(!tempBoard.isRunning()){
                 break;
             }
         }
-        return score;
+        return score / 10;
     }
 
     private double scoreFunction(Board board, int playerId){

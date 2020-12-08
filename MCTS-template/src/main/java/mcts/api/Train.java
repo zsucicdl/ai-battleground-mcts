@@ -100,6 +100,10 @@ public class Train {
         System.out.println("\nMy player id: " + board.getCurrentPlayerIndex());
         Move move = MCTS.findNextMove(board);
         System.out.println("my turn is: " + move.toString());
+        if(move.getType() == MoveType.BUILD_ROAD){
+            String asdf = HttpHelper.GET(URL + "canAction?playerId=1&gameId=1&action=" + move.toString().replaceAll(" ", "%20"));
+            System.out.println("######### " + asdf + " #########");
+        }
         board.playMove(move);
         String moveString = move.toString().replaceAll(" ", "%20");
         return HttpHelper.GET(URL + "train/doAction?playerID=" + playerId + "&gameID=" + GAME_ID + "&action=" + moveString);

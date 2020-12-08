@@ -148,8 +148,7 @@ public class Board {
                 }
 
                 // BUILD ROAD
-                int connection = getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex());
-                if (connection != 0) {
+                if (getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex()) != 0) {
                     continue;
                 }
                 boolean isConnected = false;

@@ -47,13 +47,12 @@ public class Intersection {
     }
 
     public boolean isConnected(int playerId, Board board){
-        boolean isConnected = false;
         for(Intersection i : this.adjacentIntersections){
             if(board.getRoadStatus(this.index, i.getIndex()) == playerId){
-                isConnected = true;
+                return true;
             }
         }
-        return isConnected;
+        return false;
     }
 
     public int numberOfRoads(int playerId, Board board){
