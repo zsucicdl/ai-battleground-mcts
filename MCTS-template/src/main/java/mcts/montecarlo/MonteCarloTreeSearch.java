@@ -22,7 +22,7 @@ public class MonteCarloTreeSearch {
 
     public Move findNextMove(Board board) throws InterruptedException {
         long start = System.currentTimeMillis();
-        long end = start + 500; // TODO set time limit
+        long end = start + 2500; // TODO set time limit
         int myPlayerId = board.getCurrentPlayerIndex();
 
         if(board.getTurns() < 4){
@@ -103,9 +103,17 @@ public class MonteCarloTreeSearch {
         if(randomMove.getType() == MoveType.BUILD_TOWN){
             score += buildTownScoreFunction(board, randomMove) / 100;
         } else if(randomMove.getType() == MoveType.UPGRADE_TOWN){
-            score += buildTownScoreFunction(board, randomMove) / 100;
+            score += upgradeTownScoreFunction(board, randomMove) / 100;
         } else if(randomMove.getType() == MoveType.BUILD_ROAD){
             score += buildRoadScoreFunction(board, randomMove) / 400;
+        }
+        return score;
+    }
+
+    private double upgradeTownScoreFunction(Board board, Move randomMove) {
+        double score = 0;
+        for(Field f : board.getIndexIntersections().get(randomMove.getIndex1()).getAdjacentFields()){
+            score += f.getWeight();
         }
         return score;
     }
