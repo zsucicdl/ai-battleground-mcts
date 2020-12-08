@@ -80,13 +80,17 @@ public class MonteCarloTreeSearch {
             int currentPlayerId = tempBoard.getCurrentPlayerIndex();
             tempBoard.playMove(randomMove);
             if(currentPlayerId == myPlayerId){
-                score += scoreFunction(tempBoard, randomMove);
+                score += scoreFunction(tempBoard, myPlayerId);
             }
             if(!tempBoard.isRunning()){
                 break;
             }
         }
         return score;
+    }
+
+    private double scoreFunction(Board board, int playerId){
+        return board.getPlayers()[playerId].getPoints();
     }
 
     private double scoreFunction(Board board, Move randomMove) {

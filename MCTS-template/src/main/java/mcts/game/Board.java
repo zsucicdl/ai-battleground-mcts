@@ -171,8 +171,10 @@ public class Board {
             }
 
             // BUILD TOWN
-            if(currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), this) &&
+            if(!currentCities.containsKey(currentPlayer.getCurrentIntersection().getIndex()) &&
+                    !opponentCities.containsKey(currentPlayer.getCurrentIntersection().getIndex()) &&
                     !currentPlayer.getCurrentIntersection().adjacentToCity(indexCities) &&
+                    currentPlayer.getCurrentIntersection().isConnected(currentPlayer.getPlayerId(), this) &&
                     currentPlayer.getCurrentIntersection().numberOfRoads(opponentPlayer.getPlayerId(), this) != 2 &&
                     currentPlayer.getAvailableResources().get(Resource.SHEEP) >= 100 &&
                     currentPlayer.getAvailableResources().get(Resource.WOOD) >= 100 &&
@@ -206,8 +208,10 @@ public class Board {
             gainResources(1);
         }
 
-        if(move.getType().equals(MoveType.INITIAL)){
+        if(move.getType() == MoveType.INITIAL){
             if(turns == 0 || turns == 1){
+                System.out.println("Player " + currentPlayer.getPlayerId() + " is placed on: " + move.getIndex1());
+                System.out.println("The intersection: " + indexIntersections.get(move.getIndex1()).getIndex());
                 currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
             }
             indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));

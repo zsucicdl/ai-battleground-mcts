@@ -68,7 +68,7 @@ public class Intersection {
 
     public boolean adjacentToCity(HashMap<Integer, City>[] indexCities){
         for(Intersection i : this.adjacentIntersections){
-            if(indexCities[0].containsKey(this.getIndex()) || indexCities[1].containsKey(this.getIndex())){
+            if(indexCities[0].containsKey(i.getIndex()) || indexCities[1].containsKey(i.getIndex())){
                 return true;
             }
         }
