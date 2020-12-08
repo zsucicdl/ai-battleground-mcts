@@ -17,7 +17,7 @@ public class State {
     }
 
     public State(Board board, Move initialMove) {
-        this.board = board.copy();
+        this.board = board;
         this.initialMove = initialMove;
     }
 
@@ -25,11 +25,16 @@ public class State {
         return initialMove;
     }
 
+    public void setInitialMove(Move initialMove) {
+        this.initialMove = initialMove;
+    }
+
     public State copy(){
         State newState = new State();
         newState.setBoard(this.board.copy());
         newState.setVisitCount(this.visitCount);
         newState.setWinScore(this.winScore);
+        newState.setInitialMove(this.initialMove);
         return newState;
     }
 
@@ -50,7 +55,7 @@ public class State {
         this.visitCount = visitCount;
     }
 
-    double getWinScore() {
+    public double getWinScore() {
         return winScore;
     }
 
@@ -62,23 +67,23 @@ public class State {
         List<State> possibleStates = new ArrayList<>();
         List<Move> legalMoves = this.board.getLegalMoves();
         for (Move move : legalMoves) {
-            State newState = new State(this.board, move);
+            State newState = new State(this.board.copy(), move);
             newState.getBoard().playMove(move);
             possibleStates.add(newState);
         }
         return possibleStates;
     }
 
-    void incrementVisit() {
+    public void incrementVisit() {
         this.visitCount++;
     }
 
-    void addScore(double score) {
+    public void addScore(double score) {
         if (this.winScore != Integer.MIN_VALUE)
             this.winScore += score;
     }
 
-    void randomPlay() {
+    public void randomPlay() {
         Move randomMove = this.board.getRandomMove();
         this.board.playMove(randomMove);
     }

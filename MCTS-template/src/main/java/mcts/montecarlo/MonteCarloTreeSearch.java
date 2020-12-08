@@ -1,10 +1,12 @@
 package mcts.montecarlo;
 
-import mcts.game.*;
+import mcts.game.Board;
+import mcts.game.Field;
+import mcts.game.Move;
+import mcts.game.MoveType;
 import mcts.tree.Node;
 import mcts.tree.Tree;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class MonteCarloTreeSearch {
@@ -13,14 +15,16 @@ public class MonteCarloTreeSearch {
     public MonteCarloTreeSearch() {
     }
 
-    public Move findNextMove(Board board) {
+    public Move findNextMove(Board board) throws InterruptedException {
         long start = System.currentTimeMillis();
-        long end = start + 3000; // TODO set time limit
+        long end = start + 2500; // TODO set time limit
         int myPlayerId = board.getCurrentPlayerIndex();
 
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
         rootNode.getState().setBoard(board);
+
+        System.out.println("possible moves: " + board.getLegalMoves().size());
 
         while (System.currentTimeMillis() < end) {
             // Phase 1 - Selection
@@ -34,11 +38,10 @@ public class MonteCarloTreeSearch {
             if (promisingNode.getChildArray().size() > 0) {
                 nodeToExplore = promisingNode.getRandomChildNode();
             }
-            int score = simulateRandomPlayout(nodeToExplore, myPlayerId);
+            double score = simulateRandomPlayout(nodeToExplore, myPlayerId);
             // Phase 4 - Update
-            backPropogation(nodeToExplore, score);
+            backPropagation(nodeToExplore, score);
         }
-
         Node winnerNode = rootNode.getChildWithMaxVisits();
         return winnerNode.getState().getInitialMove();
     }
@@ -60,14 +63,20 @@ public class MonteCarloTreeSearch {
         }
     }
 
-    private int simulateRandomPlayout(Node node, int myPlayerId) {
+    private double simulateRandomPlayout(Node node, int myPlayerId) {
         Node tempNode = node.copy();
         Board tempBoard = tempNode.getState().getBoard();
-        int score = 0;
+        double score = scoreFunction(tempBoard, tempNode.getState().getInitialMove());
 
-        // TODO implement simulation
-        for(int i = 0; i < SIMULATION_DEPTH; i++) {
+        int simulationDepth = SIMULATION_DEPTH;
+        if(tempBoard.getTurns() < 4){
+            simulationDepth = 4 - tempBoard.getTurns();
+        }
+        for(int i = 0; i < simulationDepth; i++) {
             Move randomMove = tempBoard.getRandomMove();
+            if(randomMove == null){
+                return -10000;
+            }
             int currentPlayerId = tempBoard.getCurrentPlayerIndex();
             tempBoard.playMove(randomMove);
             if(currentPlayerId == myPlayerId){
@@ -80,7 +89,7 @@ public class MonteCarloTreeSearch {
         return score;
     }
 
-    private int scoreFunction(Board board, Move randomMove) {
+    private double scoreFunction(Board board, Move randomMove) {
         int score = 0;
         if(randomMove.getType() == MoveType.INITIAL){
             score += initialMoveScoreFunction(board, randomMove);
@@ -117,8 +126,25 @@ public class MonteCarloTreeSearch {
         return score;
     }
 
-    private int initialMoveScoreFunction(Board board, Move randomMove) {
-        int score = 0;
+    private double initialMoveScoreFunction(Board board, Move randomMove){
+        double score = 0;
+        for(Field f : board.getIndexIntersections().get(randomMove.getIndex1()).getAdjacentFields()){
+            switch (f.getResource()){
+                case WOOD:
+                case CLAY:
+                    score += f.getWeight() * 4;
+                    break;
+                case WHEAT:
+                case SHEEP:
+                    score += f.getWeight() * 3;
+            }
+        }
+        return score * 100;
+    }
+
+/*
+    private double initialMoveScoreFunction(Board board, Move randomMove) {
+        double score = 0;
         if(board.getTurns() <= 1){
             for(Field f : board.getIndexIntersections().get(randomMove.getIndex1()).getAdjacentFields()){
                 switch (f.getResource()){
@@ -166,7 +192,9 @@ public class MonteCarloTreeSearch {
         return score;
     }
 
-    private void backPropogation(Node nodeToExplore, int score) {
+ */
+
+    private void backPropagation(Node nodeToExplore, double score) {
         Node tempNode = nodeToExplore;
         while (tempNode != null) {
             tempNode.getState().incrementVisit();

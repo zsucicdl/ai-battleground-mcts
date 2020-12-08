@@ -115,6 +115,21 @@ public class Board {
                 if(intersection.adjacentToCity(indexCities) ||  currentCities.containsKey(intersection.getIndex()) || opponentCities.containsKey(intersection.getIndex())){
                     continue;
                 }
+                // if town placement will not satisfy 4 basic resources, then it is not legal move
+                if(currentCities.size() > 0){
+                    HashMap<Resource, Boolean> flags = new HashMap<>();
+                    for(City c : currentCities.values()){
+                        for(Field f : c.getIntersection().getAdjacentFields()){
+                            flags.put(f.getResource(), true);
+                        }
+                    }
+                    for(Field f : intersection.getAdjacentFields()){
+                        flags.put(f.getResource(), true);
+                    }
+                    if(!flags.containsKey(Resource.WOOD) || !flags.containsKey(Resource.SHEEP) || !flags.containsKey(Resource.WHEAT) || !flags.containsKey(Resource.CLAY)){
+                        continue;
+                    }
+                }
                 for(Intersection otherIntersection : intersection.getAdjacentIntersections()){
                     if(indexXYRoads.containsKey(new ValuesXY(intersection.getIndex(), otherIntersection.getIndex()))){
                         continue;
@@ -239,6 +254,9 @@ public class Board {
 
     public Move getRandomMove(){
         List<Move> possibleMoves = getLegalMoves();
+        if(possibleMoves.size() == 0){
+            return null;
+        }
         int index = RANDOM.nextInt(possibleMoves.size());
         return possibleMoves.get(index);
     }

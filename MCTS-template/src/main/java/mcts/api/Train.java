@@ -25,19 +25,16 @@ public class Train {
         initPlayer(1);
     }
 
-    private static void initPlayer(int playerId) throws JSONException {
+    private static void initPlayer(int playerId) throws JSONException, InterruptedException {
         System.out.println("Player " + playerId + " started");
         String stringJson = HttpHelper.GET(URL + "train/play?playerID=" + playerId + "&gameID=" + GAME_ID);
-        System.out.println(stringJson.length());
         JSONObject data = new JSONObject(stringJson);
 
         int iteration = 0;
         String enemyAction;
         boolean amIFirst = true;
         Board board = null;
-        System.out.println("entering while loop");
         while (data.getBoolean("success")) {
-            System.out.println("iteration: " + iteration);
             if(iteration == 0){
                 JSONObject result = data.getJSONObject("result");
                 JSONArray intersectionCoordinates = result.getJSONArray("intersectionCoordinates");
@@ -99,9 +96,8 @@ public class Train {
         }
     }
 
-    private static String doMyTurn(Board board, int playerId){
-        System.out.println("calculating my turn...");
-        System.out.println(board.getCurrentPlayerIndex());
+    private static String doMyTurn(Board board, int playerId) throws InterruptedException {
+        System.out.println("My player id: " + board.getCurrentPlayerIndex());
         Move move = MCTS.findNextMove(board);
         System.out.println("my turn is: " + move.toString());
         board.playMove(move);

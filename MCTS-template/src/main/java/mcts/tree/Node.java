@@ -74,6 +74,8 @@ public class Node {
         int maxScore = Integer.MIN_VALUE;
         Node bestChild = null;
         for(Node childNode : childArray) {
+            System.out.println("Score: " + childNode.getState().getWinScore());
+            System.out.println("Visits: " + childNode.getState().getVisitCount());
             if (childNode.getState().getVisitCount() > maxScore){
                 maxScore = childNode.getState().getVisitCount();
                 bestChild = childNode;

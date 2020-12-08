@@ -15,11 +15,11 @@ public class Game {
 
     private static final MonteCarloTreeSearch MCTS = new MonteCarloTreeSearch();
 
-    public static void main(String[] args) throws JSONException {
+    public static void main(String[] args) throws JSONException, InterruptedException {
         initPlayer(1);
     }
 
-    private static void initPlayer(int playerId) throws JSONException {
+    private static void initPlayer(int playerId) throws JSONException, InterruptedException {
         System.out.println("Player " + playerId + " started");
         String stringJson = HttpHelper.GET(URL + "game/play?playerID=" + playerId + "&gameID=" + GAME_ID);
         JSONObject data = new JSONObject(stringJson);
@@ -90,7 +90,7 @@ public class Game {
         }
     }
 
-    private static String doMyTurn(Board board, int playerId){
+    private static String doMyTurn(Board board, int playerId) throws InterruptedException {
         Move move = MCTS.findNextMove(board);
         board.playMove(move);
         String moveString = move.toString().replaceAll(" ", "%20");
