@@ -186,7 +186,9 @@ public class Board {
             // UPGRADE TOWN
             if(currentPlayer.getAvailableResources().get(Resource.WHEAT) >= 200 && currentPlayer.getAvailableResources().get(Resource.IRON) >= 300){
                 for(Integer index : currentCities.keySet()){
-                    moves.add(new Move(MoveType.UPGRADE_TOWN, index));
+                    if(currentCities.get(index).getLevel() == 1) {
+                        moves.add(new Move(MoveType.UPGRADE_TOWN, index));
+                    }
                 }
             }
 

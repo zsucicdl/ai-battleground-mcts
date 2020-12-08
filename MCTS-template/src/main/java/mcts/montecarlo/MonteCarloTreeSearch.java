@@ -10,14 +10,19 @@ import mcts.tree.Tree;
 import java.util.List;
 
 public class MonteCarloTreeSearch {
-    private static final int SIMULATION_DEPTH = 10;
+    private static final int SIMULATION_DEPTH = 20;
+    private static final double COEF = 0.9;
+    private double maxScore = 0;
 
     public MonteCarloTreeSearch() {
+        for (int i = 0; i<=SIMULATION_DEPTH; i+=2) {
+            maxScore += Math.pow(COEF, i);
+        }
     }
 
     public Move findNextMove(Board board) throws InterruptedException {
         long start = System.currentTimeMillis();
-        long end = start + 2500; // TODO set time limit
+        long end = start + 200; // TODO set time limit
         int myPlayerId = board.getCurrentPlayerIndex();
 
         if(board.getTurns() < 4){
@@ -72,15 +77,13 @@ public class MonteCarloTreeSearch {
         Node tempNode = node.copy();
         Board tempBoard = tempNode.getState().getBoard();
         double score = scoreFunction(tempBoard, tempNode.getState().getInitialMove());
-        if(tempBoard.getTurns() < 4){
-            return score;
-        }
-        for(int i = 0; i < SIMULATION_DEPTH; i++) {
+
+        for(int i = 1; i <= SIMULATION_DEPTH; i++) {
             Move randomMove = tempBoard.getRandomMove();
             int currentPlayerId = tempBoard.getCurrentPlayerIndex();
             tempBoard.playMove(randomMove);
             if(currentPlayerId == myPlayerId){
-                score += scoreFunction(tempBoard, myPlayerId);
+                score += scoreFunction(tempBoard, randomMove) * Math.pow(COEF, i);
             }
             if(!tempBoard.isRunning()){
                 break;
@@ -97,7 +100,7 @@ public class MonteCarloTreeSearch {
         if(randomMove.getType() == MoveType.BUILD_TOWN || randomMove.getType() == MoveType.UPGRADE_TOWN){
             return 1.0;
         } else {
-            return -0.1;
+            return 0;
         }
         /*
         double score = -1;
