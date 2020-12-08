@@ -215,8 +215,8 @@ public class Board {
                 System.out.println("The intersection: " + indexIntersections.get(move.getIndex1()).getIndex());
                 currentPlayer.setCurrentIntersection(indexIntersections.get(move.getIndex1()));
             }
-            indexCities[currentPlayerIndex].put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
-            buildRoad(move.getIndex1(), move.getIndex2(), players[currentPlayerIndex].getPlayerId());
+            currentCities.put(move.getIndex1(), new City(indexIntersections.get(move.getIndex1())));
+            buildRoad(move.getIndex1(), move.getIndex2(), currentPlayer.getPlayerId());
         } else if(move.getType().equals(MoveType.MOVE)){
             if(getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), move.getIndex1()) != currentPlayer.getPlayerId()){
                 currentPlayer.getAvailableResources().compute(Resource.SHEEP, (key, value) -> value - 50);
