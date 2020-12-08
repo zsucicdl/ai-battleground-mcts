@@ -16,7 +16,24 @@ public class Game {
     private static final MonteCarloTreeSearch MCTS = new MonteCarloTreeSearch();
 
     public static void main(String[] args) throws JSONException, InterruptedException {
-        initPlayer(1);
+        startPlayer(1);
+        startPlayer(2);
+    }
+
+    private static void startPlayer(int playerId){
+        Thread player = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    initPlayer(playerId);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        player.start();
     }
 
     private static void initPlayer(int playerId) throws JSONException, InterruptedException {
@@ -72,7 +89,13 @@ public class Game {
                 // PROTIVNIČKA ZADNJA INICIJALIZACIJA I PRVI POTEZ
                 String[] words = enemyAction.split(" ");
                 String move1 = words[0] + " " + words[1] + " " + words[2];
-                String move2 = words[3] + " " + words[4] + " " + words[5];
+                String move2 = words[3];
+                if(words.length == 5){
+                    move2 += " " + words[4];
+                }
+                if(words.length == 6){
+                    move2 += " " + words[5];
+                }
                 board.playMove(Move.fromString(move1));
                 board.playMove(Move.fromString(move2));
                 iteration += 2;

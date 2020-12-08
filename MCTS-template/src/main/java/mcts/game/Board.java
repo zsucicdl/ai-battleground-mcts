@@ -283,23 +283,52 @@ public class Board {
     }
 
     public Move getBestInitialMove() {
+        HashMap<Resource, Integer> resources = new HashMap<>();
+        for(City c : indexCities[getCurrentPlayerIndex()].values()){
+            for(Field f : c.getIntersection().getAdjacentFields()){
+                if(resources.containsKey(f.getResource())){
+                   resources.compute(f.getResource(), (key, value) -> value + f.getWeight());
+                } else {
+                    resources.put(f.getResource(), f.getWeight());
+                }
+            }
+        }
+
         Move bestMove = null;
         int maxScore = Integer.MIN_VALUE;
         for(Move m : getLegalMoves()){
             int score = 0;
             for(Field f : indexIntersections.get(m.getIndex1()).getAdjacentFields()){
+                double tempScore = 0;
                 switch (f.getResource()){
                     case WOOD:
                     case CLAY:
-                        score += f.getWeight() * 8;
+                        tempScore += f.getWeight();
+                        if(resources.containsKey(f.getResource())){
+                            tempScore *= (30 - resources.get(f.getResource()));
+                        }else{
+                            tempScore *= 30;
+                        }
                         break;
                     case SHEEP:
                     case WHEAT:
-                        score += f.getWeight() * 5;
+                        tempScore += f.getWeight();
+                        if(resources.containsKey(f.getResource())){
+                            tempScore *= (30 - resources.get(f.getResource()));
+                        }else{
+                            tempScore *= 30;
+                        }
                         break;
                     case IRON:
-                        score += f.getWeight() * 3;
+                        tempScore += f.getWeight();
+                        if(resources.containsKey(f.getResource())){
+                            tempScore *= (30 - resources.get(f.getResource()));
+                        }else{
+                            tempScore *= 30;
+                        }
                 }
+
+                score += tempScore;
             }
             if(score > maxScore){
                 maxScore = score;
