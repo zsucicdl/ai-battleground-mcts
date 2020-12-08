@@ -20,6 +20,10 @@ public class MonteCarloTreeSearch {
         long end = start + 2500; // TODO set time limit
         int myPlayerId = board.getCurrentPlayerIndex();
 
+        if(board.getTurns() < 4){
+            return board.getBestInitialMove();
+        }
+
         Tree tree = new Tree();
         Node rootNode = tree.getRoot();
         rootNode.getState().setBoard(board);
@@ -67,12 +71,10 @@ public class MonteCarloTreeSearch {
         Node tempNode = node.copy();
         Board tempBoard = tempNode.getState().getBoard();
         double score = scoreFunction(tempBoard, tempNode.getState().getInitialMove());
-
-        int simulationDepth = SIMULATION_DEPTH;
         if(tempBoard.getTurns() < 4){
-            simulationDepth = 4 - tempBoard.getTurns();
+            return score;
         }
-        for(int i = 0; i < simulationDepth; i++) {
+        for(int i = 0; i < SIMULATION_DEPTH; i++) {
             Move randomMove = tempBoard.getRandomMove();
             if(randomMove == null){
                 return -10000;

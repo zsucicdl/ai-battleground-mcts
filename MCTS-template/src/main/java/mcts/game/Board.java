@@ -276,4 +276,31 @@ public class Board {
         indexXYRoads.put(new ValuesXY(index1, index2), playerId);
         indexXYRoads.put(new ValuesXY(index2, index1), playerId);
     }
+
+    public Move getBestInitialMove() {
+        Move bestMove = null;
+        int maxScore = Integer.MIN_VALUE;
+        for(Move m : getLegalMoves()){
+            int score = 0;
+            for(Field f : indexIntersections.get(m.getIndex1()).getAdjacentFields()){
+                switch (f.getResource()){
+                    case WOOD:
+                    case CLAY:
+                        score += f.getWeight() * 8;
+                        break;
+                    case SHEEP:
+                    case WHEAT:
+                        score += f.getWeight() * 7;
+                        break;
+                    case IRON:
+                        score += f.getWeight() * 4;
+                }
+            }
+            if(score > maxScore){
+                maxScore = score;
+                bestMove = m;
+            }
+        }
+        return bestMove;
+    }
 }
