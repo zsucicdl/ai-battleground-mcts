@@ -10,7 +10,7 @@ import mcts.tree.Tree;
 import java.util.List;
 
 public class MonteCarloTreeSearch {
-    private static final int SIMULATION_DEPTH = 20;
+    private static final int SIMULATION_DEPTH = 8;
     private static final double COEF = 0.9;
     private double maxScore = 0;
 
@@ -22,7 +22,7 @@ public class MonteCarloTreeSearch {
 
     public Move findNextMove(Board board) throws InterruptedException {
         long start = System.currentTimeMillis();
-        long end = start + 1500; // TODO set time limit
+        long end = start + 1000; // TODO set time limit
         int myPlayerId = board.getCurrentPlayerIndex();
 
         if(board.getTurns() < 4){
@@ -76,49 +76,38 @@ public class MonteCarloTreeSearch {
     private double simulateRandomPlayout(Node node, int myPlayerId) {
         Node tempNode = node.copy();
         Board tempBoard = tempNode.getState().getBoard();
-        double score = scoreFunction(tempBoard, myPlayerId);
+        double score = scoreFunctionPoints(tempBoard, myPlayerId);
+        score += scoreFunctionMove(tempBoard, tempNode.getState().getInitialMove());
 
         for(int i = 1; i <= SIMULATION_DEPTH; i++) {
             Move randomMove = tempBoard.getRandomMove();
             int currentPlayerId = tempBoard.getCurrentPlayerIndex();
             tempBoard.playMove(randomMove);
             if(currentPlayerId == myPlayerId){
-                score += scoreFunction(tempBoard, myPlayerId);
+                score += scoreFunctionPoints(tempBoard, myPlayerId);
+                score += scoreFunctionMove(tempBoard, randomMove);
             }
             if(!tempBoard.isRunning()){
                 break;
             }
         }
-        return score / 10;
+        return score / SIMULATION_DEPTH;
     }
 
-    private double scoreFunction(Board board, int playerId){
+    private double scoreFunctionPoints(Board board, int playerId){
         return board.getPlayers()[playerId].getPoints();
     }
 
-    private double scoreFunction(Board board, Move randomMove) {
-        if(randomMove.getType() == MoveType.BUILD_TOWN || randomMove.getType() == MoveType.UPGRADE_TOWN){
-            return 1.0;
-        } else {
-            return 0;
-        }
-        /*
-        double score = -1;
-        if(randomMove.getType() == MoveType.INITIAL){
-            score += initialMoveScoreFunction(board, randomMove);
-        } else if(randomMove.getType() == MoveType.BUILD_TOWN){
-            score += 100;
-            //score += buildTownScoreFunction(board, randomMove);
+    private double scoreFunctionMove(Board board, Move randomMove) {
+        double score = 0;
+        if(randomMove.getType() == MoveType.BUILD_TOWN){
+            score += buildTownScoreFunction(board, randomMove) / 100;
         } else if(randomMove.getType() == MoveType.UPGRADE_TOWN){
-            score += 80;
-            //score += buildTownScoreFunction(board, randomMove);
-        } else if(randomMove.getType() == MoveType.BUILD_ROAD){
-            score += 30;
-        } else if(randomMove.getType() == MoveType.MOVE){
-            score += 1;
-        }
+            score += buildTownScoreFunction(board, randomMove) / 100;
+        } /*else if(randomMove.getType() == MoveType.BUILD_ROAD){
+            score += buildRoadScoreFunction(board, randomMove);
+        }*/
         return score / 100;
-         */
     }
 
     private int buildRoadScoreFunction(Board board, Move randomMove) {
@@ -131,8 +120,8 @@ public class MonteCarloTreeSearch {
         return noOfCities * (25 - noOfRoads);
     }
 
-    private int buildTownScoreFunction(Board board, Move randomMove) {
-        int score = 0;
+    private double buildTownScoreFunction(Board board, Move randomMove) {
+        double score = 0;
         for(Field f : board.getCurrentPlayer().getCurrentIntersection().getAdjacentFields()){
             score += f.getWeight();
         }

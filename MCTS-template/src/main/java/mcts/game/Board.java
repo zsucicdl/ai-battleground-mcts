@@ -143,9 +143,9 @@ public class Board {
                 // MOVE
                 if (getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex()) == currentPlayer.getPlayerId()) {
                     moves.add(new Move(MoveType.MOVE, intersection.getIndex()));
-                } else if (currentPlayer.getAvailableResources().get(Resource.SHEEP) >= 50 && currentPlayer.getAvailableResources().get(Resource.WHEAT) >= 50) {
+                } /*else if (currentPlayer.getAvailableResources().get(Resource.SHEEP) >= 50 && currentPlayer.getAvailableResources().get(Resource.WHEAT) >= 50) {
                     moves.add(new Move(MoveType.MOVE, intersection.getIndex()));
-                }
+                } */
 
                 // BUILD ROAD
                 if (getRoadStatus(currentPlayer.getCurrentIntersection().getIndex(), intersection.getIndex()) != 0) {
@@ -295,10 +295,10 @@ public class Board {
                         break;
                     case SHEEP:
                     case WHEAT:
-                        score += f.getWeight() * 7;
+                        score += f.getWeight() * 5;
                         break;
                     case IRON:
-                        score += f.getWeight() * 4;
+                        score += f.getWeight() * 3;
                 }
             }
             if(score > maxScore){
