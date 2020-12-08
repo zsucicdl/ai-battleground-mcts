@@ -79,8 +79,7 @@ public class State {
     }
 
     public void addScore(double score) {
-        if (this.winScore != Integer.MIN_VALUE)
-            this.winScore += score;
+        this.winScore += score;
     }
 
     public void randomPlay() {

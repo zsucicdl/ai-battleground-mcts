@@ -31,6 +31,7 @@ public class MonteCarloTreeSearch {
         System.out.println("possible moves: " + board.getLegalMoves().size());
 
         while (System.currentTimeMillis() < end) {
+            //TimeUnit.MILLISECONDS.sleep(100);
             // Phase 1 - Selection
             Node promisingNode = selectPromisingNode(rootNode);
             // Phase 2 - Expansion
@@ -76,9 +77,6 @@ public class MonteCarloTreeSearch {
         }
         for(int i = 0; i < SIMULATION_DEPTH; i++) {
             Move randomMove = tempBoard.getRandomMove();
-            if(randomMove == null){
-                return -10000;
-            }
             int currentPlayerId = tempBoard.getCurrentPlayerIndex();
             tempBoard.playMove(randomMove);
             if(currentPlayerId == myPlayerId){
@@ -92,22 +90,28 @@ public class MonteCarloTreeSearch {
     }
 
     private double scoreFunction(Board board, Move randomMove) {
-        int score = 0;
+        if(randomMove.getType() == MoveType.BUILD_TOWN || randomMove.getType() == MoveType.UPGRADE_TOWN){
+            return 1.0;
+        } else {
+            return -0.1;
+        }
+        /*
+        double score = -1;
         if(randomMove.getType() == MoveType.INITIAL){
             score += initialMoveScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.BUILD_TOWN){
             score += 100;
-            score += buildTownScoreFunction(board, randomMove);
+            //score += buildTownScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.UPGRADE_TOWN){
             score += 80;
-            score += buildTownScoreFunction(board, randomMove);
+            //score += buildTownScoreFunction(board, randomMove);
         } else if(randomMove.getType() == MoveType.BUILD_ROAD){
-            score += 3;
+            score += 30;
         } else if(randomMove.getType() == MoveType.MOVE){
             score += 1;
         }
-        score += board.getCurrentPlayer().getNoOfResources() / 100;
-        return score;
+        return score / 100;
+         */
     }
 
     private int buildRoadScoreFunction(Board board, Move randomMove) {

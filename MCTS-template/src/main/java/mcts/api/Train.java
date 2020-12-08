@@ -97,7 +97,7 @@ public class Train {
     }
 
     private static String doMyTurn(Board board, int playerId) throws InterruptedException {
-        System.out.println("My player id: " + board.getCurrentPlayerIndex());
+        System.out.println("\nMy player id: " + board.getCurrentPlayerIndex());
         Move move = MCTS.findNextMove(board);
         System.out.println("my turn is: " + move.toString());
         board.playMove(move);

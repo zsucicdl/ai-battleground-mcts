@@ -7,11 +7,11 @@ public class UCT {
         if (nodeVisit == 0) {
             return Integer.MAX_VALUE;
         }
-        return (nodeWinScore / (double) nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
+        return nodeWinScore / ((double) nodeVisit) + 1.41 * Math.sqrt(Math.log(totalVisit) / (double) nodeVisit);
     }
 
     static Node findBestNodeWithUCT(Node node) {
-        double maxValue = Double.MIN_VALUE;
+        double maxValue = -Double.MAX_VALUE;
         Node bestNode = node;
         for(Node childNode : node.getChildArray()){
             double uctValue = uctValue(node.getState().getVisitCount(), childNode.getState().getWinScore(), childNode.getState().getVisitCount());
