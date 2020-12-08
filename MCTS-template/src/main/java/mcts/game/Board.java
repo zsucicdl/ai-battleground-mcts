@@ -265,6 +265,32 @@ public class Board {
         int index = RANDOM.nextInt(possibleMoves.size());
         return possibleMoves.get(index);
     }
+    public Move getLogicalMove() {
+        List<Move> possibleMoves = getLegalMoves();
+        List<Move> logicalMoves = new ArrayList<>();
+        for(Move m : possibleMoves){
+            if(m.getType() == MoveType.BUILD_TOWN || m.getType() == MoveType.UPGRADE_TOWN){
+                logicalMoves.add(m);
+            }
+        }
+        if(logicalMoves.isEmpty()){
+            int index = RANDOM.nextInt(possibleMoves.size());
+            return possibleMoves.get(index);
+        } else{
+            int index = RANDOM.nextInt(logicalMoves.size());
+            return logicalMoves.get(index);
+        }
+    }
+
+    public int getWinnerPayerId(){
+        if(players[0].getPoints() >= 16){
+            return 0;
+        } else if(players[1].getPoints() >= 16){
+            return 1;
+        } else {
+            return -1;
+        }
+    }
 
     public boolean isRunning(){
         return players[0].getPoints() < 16 && players[1].getPoints() < 16;
@@ -303,29 +329,17 @@ public class Board {
                 switch (f.getResource()){
                     case WOOD:
                     case CLAY:
-                        tempScore += f.getWeight();
-                        if(resources.containsKey(f.getResource())){
-                            tempScore *= (30 - resources.get(f.getResource()));
-                        }else{
-                            tempScore *= 30;
-                        }
+                        tempScore += f.getWeight() * 4;
                         break;
                     case SHEEP:
                     case WHEAT:
-                        tempScore += f.getWeight();
-                        if(resources.containsKey(f.getResource())){
-                            tempScore *= (30 - resources.get(f.getResource()));
-                        }else{
-                            tempScore *= 30;
-                        }
-                        break;
                     case IRON:
-                        tempScore += f.getWeight();
-                        if(resources.containsKey(f.getResource())){
-                            tempScore *= (30 - resources.get(f.getResource()));
-                        }else{
-                            tempScore *= 30;
-                        }
+                        tempScore += f.getWeight() * 3;
+                }
+                if(resources.containsKey(f.getResource())){
+                    tempScore *= (30 - resources.get(f.getResource()));
+                }else{
+                    tempScore *= 30;
                 }
 
                 score += tempScore;

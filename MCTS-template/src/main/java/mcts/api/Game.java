@@ -87,7 +87,7 @@ public class Game {
                 iteration++;
             }else if(!amIFirst && iteration == 3){
                 // PROTIVNIČKA ZADNJA INICIJALIZACIJA I PRVI POTEZ
-                String[] words = enemyAction.split(" ");
+                String[] words = enemyAction.split("\\s+");
                 String move1 = words[0] + " " + words[1] + " " + words[2];
                 String move2 = words[3];
                 if(words.length == 5){
@@ -114,10 +114,14 @@ public class Game {
     }
 
     private static String doMyTurn(Board board, int playerId) throws InterruptedException {
+        System.out.println("\nMy player id: " + board.getCurrentPlayerIndex());
+        List<Move> getPossibleMoves = board.getLegalMoves();
         Move move = MCTS.findNextMove(board);
+        System.out.println("my turn is: " + move.toString());
         board.playMove(move);
         String moveString = move.toString().replaceAll(" ", "%20");
-        return HttpHelper.GET(URL + "doAction?playerID=" + playerId + "&gameID=" + GAME_ID + "&action=" + moveString);
+        String res =  HttpHelper.GET(URL + "/doAction?playerID=" + playerId + "&gameID=" + GAME_ID + "&action=" + moveString);
+        return res;
     }
     
     public static Board initGameState(JSONArray intersectionCoordinates, JSONArray mapTiles, JSONArray indexMap, boolean amIFirst) throws JSONException {
